@@ -24,11 +24,11 @@ session_start();
 
             <div class="nav-links">
                 <a href="index.php">Beranda</a>
-                <a href="#">Mahasiswa</a>
-                <a href="#">Dosen</a>
+                <a href="mahasiswa.php">Mahasiswa</a>
+                <a href="dosen.php">Dosen</a>
                 <a href="matkul.php">Mata kuliah</a>
                 <a href="nilai.php">Nilai</a>
-                <a href="#">Anggota</a>
+                <a href="anggota.php">Anggota</a>
             </div>
 
             <?php if(isset($_SESSION['login'])){ ?>
