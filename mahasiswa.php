@@ -1,14 +1,6 @@
 <?php
 session_start();
 include 'includes/koneksi.php';
-
-// Ambil data untuk edit jika ada
-$editData = null;
-if (isset($_GET['edit'])) {
-    $id = intval($_GET['edit']);
-    $result = mysqli_query($conn, "SELECT * FROM tbl_mhs WHERE id='$id'");
-    $editData = mysqli_fetch_assoc($result);
-}
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -16,35 +8,33 @@ if (isset($_GET['edit'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Data Mahasiswa</title>
-
-    <!-- FONT -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
-    <!-- TAILWIND -->
-    <script src="https://cdn.tailwindcss.com"></script>
-
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Poppins', sans-serif;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
 
         body {
-            background: #efefef;
+            background: url('img/hero.jpg') center/cover fixed;
             padding: 40px;
+            min-height: 100vh;
         }
 
-        .container-custom {
-            max-width: 1200px;
-            margin: auto;
-            background: white;
-            padding: 25px;
-            border-radius: 25px;
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.55);
+            z-index: 0;
         }
 
-        /* NAVBAR */
+      .container-custom {
+    max-width: 1200px;
+    margin: auto;
+    background: transparent;
+    padding: 25px;
+    position: relative;
+    z-index: 1;
+}
+
         .navbar {
             display: flex;
             justify-content: space-between;
@@ -54,27 +44,10 @@ if (isset($_GET['edit'])) {
             border-bottom: 1px solid #e5e7eb;
         }
 
-        .logo {
-            font-size: 28px;
-            font-weight: 600;
-            color: #111827;
-        }
-
-        .nav-links {
-            display: flex;
-            gap: 35px;
-        }
-
-        .nav-links a {
-            text-decoration: none;
-            color: #374151;
-            font-size: 15px;
-            transition: 0.3s;
-        }
-
-        .nav-links a:hover, .nav-links a.active {
-            color: #2563eb;
-        }
+        .logo { font-size: 28px; font-weight: 600; color: white; }
+        .nav-links { display: flex; gap: 35px; }
+        .nav-links a { text-decoration: none; color: white; font-size: 15px; transition: 0.3s; }
+        .nav-links a:hover, .nav-links a.active { color: #2563eb; }
 
         .btn-book {
             background: #0f172a;
@@ -85,33 +58,114 @@ if (isset($_GET['edit'])) {
             font-size: 14px;
             transition: 0.3s;
         }
+        .btn-book:hover { background: #1e293b; }
 
-        .btn-book:hover {
-            background: #1e293b;
+        .notif-sukses {
+            margin-bottom: 16px; padding: 12px 16px; border-radius: 10px;
+            font-size: 14px; font-weight: 500;
+            background: #dcfce7; color: #15803d; border: 1px solid #86efac;
+        }
+        .notif-gagal {
+            margin-bottom: 16px; padding: 12px 16px; border-radius: 10px;
+            font-size: 14px; font-weight: 500;
+            background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5;
         }
 
-        /* MODAL */
+        .page-header h1 { font-size: 28px; font-weight: 700; color: white; }
+        .page-header h1 { font-size: 28px; font-weight: 700; color: white; }
+        .page-header p { font-size: 14px; color: rgba(255,255,255,0.7); margin-top: 4px; }
+
+        .btn-tambah {
+            background: #2563eb; color: white; padding: 10px 22px;
+            border-radius: 12px; font-size: 14px; font-weight: 500;
+            border: none; cursor: pointer; transition: 0.3s; font-family: 'Poppins', sans-serif;
+        }
+        .btn-tambah:hover { background: #1d4ed8; }
+
+        .table-wrapper {
+    background: transparent; border-radius: 16px;
+    overflow: hidden;
+}
+
+table { width: 100%; border-collapse: collapse; text-align: left; }
+thead tr { background: rgba(0,0,0,0.35); border-bottom: 1px solid rgba(255,255,255,0.15); }
+th { padding: 16px 24px; font-size: 13px; font-weight: 600; color: white; text-transform: uppercase; letter-spacing: 0.05em; }
+tbody tr { border-bottom: 1px solid rgba(255,255,255,0.1); transition: background 0.15s; }
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { background: rgba(0,0,0,0.25); }
+td { padding: 16px 24px; font-size: 14px; color: white; }
+
+        .td-nim { font-family: monospace; font-size: 13px; color: #4f46e5; font-weight: 600; }
+        .td-nama { font-weight: 500; color: #0f172a; }
+        .td-aksi { text-align: center; }
+        .aksi-wrap { display: flex; gap: 8px; justify-content: center; }
+
+        .btn-edit {
+            background: #fbbf24; color: white; border: none;
+            padding: 6px 16px; border-radius: 8px; font-size: 12px;
+            font-weight: 600; cursor: pointer; transition: 0.3s; font-family: 'Poppins', sans-serif;
+        }
+        .btn-edit:hover { background: #f59e0b; }
+
+        .btn-hapus {
+            background: #ef4444; color: white; text-decoration: none;
+            padding: 6px 16px; border-radius: 8px; font-size: 12px;
+            font-weight: 600; transition: 0.3s; display: inline-block;
+        }
+        .btn-hapus:hover { background: #dc2626; }
+
         .modal-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.5);
-            z-index: 50;
-            align-items: center;
-            justify-content: center;
+            display: none; position: fixed; inset: 0;
+            background: rgba(0,0,0,0.5); z-index: 50;
+            align-items: center; justify-content: center;
         }
-
-        .modal-overlay.active {
-            display: flex;
-        }
+        .modal-overlay.active { display: flex; }
 
         .modal-box {
-            background: white;
-            border-radius: 20px;
-            padding: 30px;
-            width: 100%;
-            max-width: 480px;
+            background: white; border-radius: 20px; padding: 30px;
+            width: 100%; max-width: 480px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+        }
+        .modal-box h2 { font-size: 20px; font-weight: 700; color: #1e293b; margin-bottom: 20px; }
+
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px; }
+        .form-group input {
+            width: 100%; border: 1px solid #d1d5db; border-radius: 10px;
+            padding: 10px 14px; font-size: 14px; font-family: 'Poppins', sans-serif;
+            transition: 0.2s; outline: none;
+        }
+        .form-group input:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+
+        .modal-footer { display: flex; gap: 12px; justify-content: flex-end; margin-top: 24px; }
+
+        .btn-batal {
+            padding: 10px 20px; border-radius: 10px; border: 1px solid #d1d5db;
+            background: white; font-size: 13px; color: #374151;
+            cursor: pointer; transition: 0.2s; font-family: 'Poppins', sans-serif;
+        }
+        .btn-batal:hover { background: #f9fafb; }
+
+        .btn-simpan {
+            padding: 10px 20px; border-radius: 10px; border: none;
+            background: #2563eb; color: white; font-size: 13px; font-weight: 600;
+            cursor: pointer; transition: 0.2s; font-family: 'Poppins', sans-serif;
+        }
+        .btn-simpan:hover { background: #1d4ed8; }
+
+        .btn-update {
+            padding: 10px 20px; border-radius: 10px; border: none;
+            background: #f59e0b; color: white; font-size: 13px; font-weight: 600;
+            cursor: pointer; transition: 0.2s; font-family: 'Poppins', sans-serif;
+        }
+        .btn-update:hover { background: #d97706; }
+
+        @media(max-width: 900px) {
+            body { padding: 20px; }
+            .navbar { flex-direction: column; gap: 16px; }
+            .nav-links { flex-wrap: wrap; justify-content: center; }
+            .page-header { flex-direction: column; gap: 12px; align-items: flex-start; }
+            th, td { padding: 12px 14px; }
         }
     </style>
 </head>
@@ -119,80 +173,65 @@ if (isset($_GET['edit'])) {
 
 <div class="container-custom">
 
-    <!-- NAVBAR -->
     <div class="navbar">
         <div class="logo">BASIS DATA 01</div>
-
         <div class="nav-links">
             <a href="index.php">Beranda</a>
-            <a href="mahasiswa.php" class="active">Mahasiswa</a>
+            <a href="mahasiswa.php">Mahasiswa</a>
             <a href="dosen.php">Dosen</a>
             <a href="matkul.php">Mata Kuliah</a>
-            <a href="nilai.php">Nilai</a>
+            <a href="nilai.php" class="active">Nilai</a>
             <a href="anggota.php">Anggota</a>
         </div>
-
         <a href="index.php" class="btn-book">Kembali ke Dashboard</a>
     </div>
 
-    <!-- NOTIFIKASI -->
     <?php if (isset($_SESSION['pesan'])): ?>
-        <div class="mb-4 px-4 py-3 rounded-lg text-sm font-medium
-            <?= $_SESSION['tipe'] === 'sukses' ? 'bg-green-100 text-green-700 border border-green-300' : 'bg-red-100 text-red-700 border border-red-300' ?>">
+        <div class="<?= $_SESSION['tipe'] === 'sukses' ? 'notif-sukses' : 'notif-gagal' ?>">
             <?= $_SESSION['pesan']; ?>
         </div>
         <?php unset($_SESSION['pesan']); unset($_SESSION['tipe']); ?>
     <?php endif; ?>
 
-    <!-- HEADER -->
-    <div class="flex justify-between items-center mb-6">
+    <div class="page-header">
         <div>
-            <h1 class="text-3xl font-bold text-slate-800 tracking-tight">Data Mahasiswa</h1>
-            <p class="text-sm text-slate-500 mt-1">Daftar data mahasiswa yang terdaftar.</p>
+            <h1>Data Mahasiswa</h1>
+            <p>Daftar data mahasiswa yang terdaftar.</p>
         </div>
-        <button onclick="bukaModalTambah()"
-            class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl text-sm font-medium transition">
-            + Tambah Mahasiswa
-        </button>
+        <button class="btn-tambah" onclick="bukaModalTambah()">+ Tambah Mahasiswa</button>
     </div>
 
-    <!-- TABLE -->
-    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-        <table class="w-full text-left border-collapse">
+    <div class="table-wrapper">
+        <table>
             <thead>
-                <tr class="bg-slate-100 border-b border-slate-200">
-                    <th class="py-4 px-6 text-sm font-semibold text-slate-700 uppercase tracking-wider">No</th>
-                    <th class="py-4 px-6 text-sm font-semibold text-slate-700 uppercase tracking-wider">NIM</th>
-                    <th class="py-4 px-6 text-sm font-semibold text-slate-700 uppercase tracking-wider">Nama</th>
-                    <th class="py-4 px-6 text-sm font-semibold text-slate-700 uppercase tracking-wider">No. HP</th>
-                    <th class="py-4 px-6 text-sm font-semibold text-slate-700 uppercase tracking-wider text-center">Aksi</th>
+                <tr>
+                    <th>No</th>
+                    <th>NIM</th>
+                    <th>Nama</th>
+                    <th>No. HP</th>
+                    <th style="text-align:center;">Aksi</th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-slate-200 text-slate-600">
+            <tbody>
                 <?php
                 $no = 1;
                 $query = mysqli_query($conn, "SELECT * FROM tbl_mhs");
                 while ($data = mysqli_fetch_assoc($query)) :
                 ?>
-                <tr class="hover:bg-slate-50 transition duration-150">
-                    <td class="py-4 px-6"><?= $no++; ?></td>
-                    <td class="py-4 px-6 font-mono text-sm text-indigo-600 font-semibold"><?= htmlspecialchars($data['nim']); ?></td>
-                    <td class="py-4 px-6 font-medium text-slate-900"><?= htmlspecialchars($data['namamhs']); ?></td>
-                    <td class="py-4 px-6"><?= htmlspecialchars($data['handphone']); ?></td>
-                    <td class="py-4 px-6 text-center">
-                        <div class="flex gap-2 justify-center">
-                            <!-- Tombol Edit -->
-                            <button
-                                onclick="bukaModalEdit('<?= $data['nim'] ?>', '<?= htmlspecialchars($data['nim'], ENT_QUOTES) ?>', '<?= htmlspecialchars($data['namamhs'], ENT_QUOTES) ?>', '<?= htmlspecialchars($data['handphone'], ENT_QUOTES) ?>')"
-                                class="bg-yellow-400 hover:bg-yellow-500 text-white text-xs font-semibold px-4 py-1.5 rounded-lg transition">
+                <tr>
+                    <td><?= $no++; ?></td>
+                    <td class="td-nim"><?= htmlspecialchars($data['nim']); ?></td>
+                    <td class="td-nama"><?= htmlspecialchars($data['namamhs']); ?></td>
+                    <td><?= htmlspecialchars($data['handphone']); ?></td>
+                    <td class="td-aksi">
+                        <div class="aksi-wrap">
+                            <button class="btn-edit"
+                                onclick="bukaModalEdit('<?= htmlspecialchars($data['nim'], ENT_QUOTES) ?>', '<?= htmlspecialchars($data['namamhs'], ENT_QUOTES) ?>', '<?= htmlspecialchars($data['handphone'], ENT_QUOTES) ?>')">
                                 Edit
                             </button>
-                            <!-- Tombol Hapus -->
-                            <a href="mahasiswa_action.php?aksi=hapus&id=<?= $data['nim'] ?>"
+                            <a href="mahasiswa_action.php?aksi=hapus&id=<?= urlencode($data['nim']) ?>"
                                 onclick="return confirm('Yakin ingin hapus mahasiswa ini?')"
-                                class="bg-red-500 hover:bg-red-600 text-white text-xs font-semibold px-4 py-1.5 rounded-lg transition">
-                                Hapus
-                            </a>
+                                class="btn-hapus">Hapus</a>
                         </div>
                     </td>
                 </tr>
@@ -203,83 +242,54 @@ if (isset($_GET['edit'])) {
 
 </div>
 
-<!-- ===== MODAL TAMBAH ===== -->
+<!-- MODAL TAMBAH -->
 <div class="modal-overlay" id="modalTambah">
     <div class="modal-box">
-        <h2 class="text-xl font-bold text-slate-800 mb-5">Tambah Mahasiswa</h2>
+        <h2>Tambah Mahasiswa</h2>
         <form action="mahasiswa_action.php" method="POST">
             <input type="hidden" name="aksi" value="tambah">
-
-            <div class="mb-4">
-                <label class="block text-sm font-medium text-slate-700 mb-1">NIM</label>
-                <input type="text" name="nim" required
-                    class="w-full border border-slate-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Contoh: 12345678">
+            <div class="form-group">
+                <label>NIM</label>
+                <input type="text" name="nim" required placeholder="Contoh: 12345678">
             </div>
-
-            <div class="mb-4">
-                <label class="block text-sm font-medium text-slate-700 mb-1">Nama Mahasiswa</label>
-                <input type="text" name="namamhs" required
-                    class="w-full border border-slate-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Nama lengkap">
+            <div class="form-group">
+                <label>Nama Mahasiswa</label>
+                <input type="text" name="namamhs" required placeholder="Nama lengkap">
             </div>
-
-            <div class="mb-6">
-                <label class="block text-sm font-medium text-slate-700 mb-1">No. HP</label>
-                <input type="text" name="handphone"
-                    class="w-full border border-slate-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="08xxxxxxxxxx">
+            <div class="form-group">
+                <label>No. HP</label>
+                <input type="text" name="handphone" placeholder="08xxxxxxxxxx">
             </div>
-
-            <div class="flex gap-3 justify-end">
-                <button type="button" onclick="tutupModal('modalTambah')"
-                    class="px-5 py-2 rounded-lg border border-slate-300 text-sm text-slate-600 hover:bg-slate-50 transition">
-                    Batal
-                </button>
-                <button type="submit"
-                    class="px-5 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition">
-                    Simpan
-                </button>
+            <div class="modal-footer">
+                <button type="button" class="btn-batal" onclick="tutupModal('modalTambah')">Batal</button>
+                <button type="submit" class="btn-simpan">Simpan</button>
             </div>
         </form>
     </div>
 </div>
 
-<!-- ===== MODAL EDIT ===== -->
+<!-- MODAL EDIT -->
 <div class="modal-overlay" id="modalEdit">
     <div class="modal-box">
-        <h2 class="text-xl font-bold text-slate-800 mb-5">Edit Mahasiswa</h2>
+        <h2>Edit Mahasiswa</h2>
         <form action="mahasiswa_action.php" method="POST">
             <input type="hidden" name="aksi" value="edit">
-            <input type="hidden" name="id" id="editId">
-
-            <div class="mb-4">
-                <label class="block text-sm font-medium text-slate-700 mb-1">NIM</label>
-                <input type="text" name="nim" id="editNim" required
-                    class="w-full border border-slate-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400">
+            <input type="hidden" name="nim_lama" id="editNimLama">
+            <div class="form-group">
+                <label>NIM</label>
+                <input type="text" name="nim" id="editNim" required>
             </div>
-
-            <div class="mb-4">
-                <label class="block text-sm font-medium text-slate-700 mb-1">Nama Mahasiswa</label>
-                <input type="text" name="namamhs" id="editNama" required
-                    class="w-full border border-slate-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400">
+            <div class="form-group">
+                <label>Nama Mahasiswa</label>
+                <input type="text" name="namamhs" id="editNama" required>
             </div>
-
-            <div class="mb-6">
-                <label class="block text-sm font-medium text-slate-700 mb-1">No. HP</label>
-                <input type="text" name="handphone" id="editHp"
-                    class="w-full border border-slate-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400">
+            <div class="form-group">
+                <label>No. HP</label>
+                <input type="text" name="handphone" id="editHp">
             </div>
-
-            <div class="flex gap-3 justify-end">
-                <button type="button" onclick="tutupModal('modalEdit')"
-                    class="px-5 py-2 rounded-lg border border-slate-300 text-sm text-slate-600 hover:bg-slate-50 transition">
-                    Batal
-                </button>
-                <button type="submit"
-                    class="px-5 py-2 rounded-lg bg-yellow-400 hover:bg-yellow-500 text-white text-sm font-semibold transition">
-                    Update
-                </button>
+            <div class="modal-footer">
+                <button type="button" class="btn-batal" onclick="tutupModal('modalEdit')">Batal</button>
+                <button type="submit" class="btn-update">Update</button>
             </div>
         </form>
     </div>
@@ -289,25 +299,19 @@ if (isset($_GET['edit'])) {
     function bukaModalTambah() {
         document.getElementById('modalTambah').classList.add('active');
     }
-
-    function bukaModalEdit(id, nim, nama, hp) {
-        document.getElementById('editId').value = id;
+    function bukaModalEdit(nim, nama, hp) {
+        document.getElementById('editNimLama').value = nim;
         document.getElementById('editNim').value = nim;
         document.getElementById('editNama').value = nama;
         document.getElementById('editHp').value = hp;
         document.getElementById('modalEdit').classList.add('active');
     }
-
     function tutupModal(idModal) {
         document.getElementById(idModal).classList.remove('active');
     }
-
-    // Klik di luar modal = tutup
     document.querySelectorAll('.modal-overlay').forEach(function(overlay) {
         overlay.addEventListener('click', function(e) {
-            if (e.target === overlay) {
-                overlay.classList.remove('active');
-            }
+            if (e.target === overlay) overlay.classList.remove('active');
         });
     });
 </script>

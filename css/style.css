@@ -1,192 +1,213 @@
-        *{
-            margin:0;
-            padding:0;
-            box-sizing:border-box;
-            font-family:'Poppins', sans-serif;
-        }
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+body {
+    background: #efefef;
+    padding: 40px;
+}
 
-        body{
-            background:#efefef;
-            padding:40px;
-        }
+/* =====================
+   NAVBAR DEFAULT (putih/terang)
+   ===================== */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #e5e7eb;
+}
+.logo {
+    font-size: 28px;
+    font-weight: 600;
+    color: #111827;
+}
+.nav-links {
+    display: flex;
+    gap: 35px;
+}
+.nav-links a {
+    text-decoration: none;
+    color: #374151;
+    font-size: 15px;
+    transition: 0.3s;
+}
+.nav-links a:hover,
+.nav-links a.active {
+    color: #2563eb;
+}
+.btn-book {
+    background: #0f172a;
+    color: white;
+    padding: 12px 28px;
+    border-radius: 30px;
+    text-decoration: none;
+    font-size: 14px;
+    transition: 0.3s;
+}
+.btn-book:hover {
+    background: #1e293b;
+}
 
-        .container{
-            max-width:1200px;
-            margin:auto;
-            background:white;
-            padding:25px;
-            border-radius:25px;
-        }
+/* =====================
+   INDEX PAGE — navbar di atas bg gelap jadi putih
+   ===================== */
+body.page-index .navbar {
+    border-bottom: 1px solid rgba(255,255,255,0.15);
+}
+body.page-index .logo {
+    color: #ffffff;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+body.page-index .nav-links a {
+    color: rgba(255,255,255,0.75);
+}
+body.page-index .nav-links a:hover,
+body.page-index .nav-links a.active {
+    color: #ffffff;
+}
 
-        /* NAVBAR */
-        .navbar{
-            display:flex;
-            justify-content:space-between;
-            align-items:center;
-            margin-bottom:25px;
-        }
+body.page-index {
+    background: url('../img/hero.jpg') center/cover fixed;
+    padding: 40px;
+    min-height: 100vh;
+    position: relative;
+}
+body.page-index::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.55);
+    z-index: 0;
+}
+.container-index {
+    max-width: 1200px;
+    margin: auto;
+    position: relative;
+    z-index: 1;
+}
 
-        .logo{
-            font-size:28px;
-            font-weight:600;
-            color:#111827;
-        }
+/* HERO */
+.hero {
+    position: relative;
+    height: 650px;
+    border-radius: 30px;
+    overflow: hidden;
+    background: url('../img/hero.jpg') center/cover;
+}
+.overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.25);
+}
+.hero-content {
+    position: relative;
+    z-index: 2;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    color: white;
+    padding: 20px;
+}
+.hero-content h1 {
+    font-size: 64px;
+    line-height: 1.2;
+    font-weight: 600;
+    max-width: 850px;
+    margin-bottom: 20px;
+}
+.hero-content p {
+    font-size: 18px;
+    max-width: 650px;
+    line-height: 1.8;
+    margin-bottom: 30px;
+    color: #f3f4f6;
+}
+.btn-start {
+    background: #111827;
+    color: white;
+    text-decoration: none;
+    padding: 16px 35px;
+    border-radius: 40px;
+    transition: 0.3s;
+}
+.btn-start:hover {
+    background: #1f2937;
+    transform: translateY(-3px);
+}
 
-        .nav-links{
-            display:flex;
-            gap:35px;
-        }
+/* BOTTOM INFO */
+.bottom-info {
+    position: absolute;
+    bottom: 25px;
+    left: 30px;
+    right: 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: white;
+    z-index: 2;
+}
+.players {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.players img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 2px solid white;
+    object-fit: cover;
+    margin-left: -10px;
+}
+.socials {
+    display: flex;
+    gap: 20px;
+}
+.socials a {
+    color: white;
+    text-decoration: none;
+    font-size: 14px;
+}
 
-        .nav-links a{
-            text-decoration:none;
-            color:#374151;
-            font-size:15px;
-            transition:0.3s;
-        }
+/* =====================
+   TABLE PAGES (mahasiswa, dosen, dll)
+   ===================== */
+.container-custom {
+    max-width: 1200px;
+    margin: auto;
+    background: rgba(255, 255, 255, 0.95);
+    padding: 25px;
+    border-radius: 25px;
+    position: relative;
+    z-index: 1;
+}
 
-        .nav-links a:hover{
-            color:#2563eb;
-        }
-
-        .btn-book{
-            background:#0f172a;
-            color:white;
-            padding:12px 28px;
-            border-radius:30px;
-            text-decoration:none;
-            font-size:14px;
-            transition:0.3s;
-        }
-
-        .btn-book:hover{
-            background:#1e293b;
-        }
-
-        /* HERO */
-        .hero{
-            position:relative;
-            height:650px;
-            border-radius:30px;
-            overflow:hidden;
-            background:url('../img/hero.jpg') center/cover;
-        }
-
-        .overlay{
-            position:absolute;
-            inset:0;
-            background:rgba(0,0,0,0.25);
-        }
-
-        .hero-content{
-            position:relative;
-            z-index:2;
-            height:100%;
-            display:flex;
-            flex-direction:column;
-            justify-content:center;
-            align-items:center;
-            text-align:center;
-            color:white;
-            padding:20px;
-        }
-
-        .hero-content h1{
-            font-size:64px;
-            line-height:1.2;
-            font-weight:600;
-            max-width:850px;
-            margin-bottom:20px;
-        }
-
-        .hero-content p{
-            font-size:18px;
-            max-width:650px;
-            line-height:1.8;
-            margin-bottom:30px;
-            color:#f3f4f6;
-        }
-
-        .btn-start{
-            background:#111827;
-            color:white;
-            text-decoration:none;
-            padding:16px 35px;
-            border-radius:40px;
-            transition:0.3s;
-        }
-
-        .btn-start:hover{
-            background:#1f2937;
-            transform:translateY(-3px);
-        }
-
-        /* BOTTOM INFO */
-        .bottom-info{
-            position:absolute;
-            bottom:25px;
-            left:30px;
-            right:30px;
-            display:flex;
-            justify-content:space-between;
-            align-items:center;
-            color:white;
-            z-index:2;
-        }
-
-        .players{
-            display:flex;
-            align-items:center;
-            gap:10px;
-        }
-
-        .players img{
-            width:40px;
-            height:40px;
-            border-radius:50%;
-            border:2px solid white;
-            object-fit:cover;
-            margin-left:-10px;
-        }
-
-        .socials{
-            display:flex;
-            gap:20px;
-        }
-
-        .socials a{
-            color:white;
-            text-decoration:none;
-            font-size:14px;
-        }
-
-        /* RESPONSIVE */
-        @media(max-width:900px){
-
-            .navbar{
-                flex-direction:column;
-                gap:20px;
-            }
-
-            .nav-links{
-                flex-wrap:wrap;
-                justify-content:center;
-            }
-
-            .hero{
-                height:550px;
-            }
-
-            .hero-content h1{
-                font-size:40px;
-            }
-
-            .hero-content p{
-                font-size:15px;
-            }
-
-            .bottom-info{
-                flex-direction:column;
-                gap:15px;
-                text-align:center;
-            }
-        }
+/* RESPONSIVE */
+@media(max-width: 900px) {
+    body { padding: 20px; }
+    .navbar {
+        flex-direction: column;
+        gap: 20px;
+    }
+    .nav-links {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    .hero { height: 550px; }
+    .hero-content h1 { font-size: 40px; }
+    .hero-content p { font-size: 15px; }
+    .bottom-info {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
+}
