@@ -1,6 +1,14 @@
 <?php
 session_start();
 include 'includes/koneksi.php';
+
+// Ambil data untuk edit jika ada
+$editData = null;
+if (isset($_GET['edit'])) {
+    $id = intval($_GET['edit']);
+    $result = mysqli_query($conn, "SELECT * FROM tbl_mhs WHERE id='$id'");
+    $editData = mysqli_fetch_assoc($result);
+}
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -82,11 +90,28 @@ include 'includes/koneksi.php';
             background: #1e293b;
         }
 
-        img {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            object-fit: cover;
+        /* MODAL */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 50;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-box {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            width: 100%;
+            max-width: 480px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
         }
     </style>
 </head>
@@ -110,12 +135,25 @@ include 'includes/koneksi.php';
         <a href="index.php" class="btn-book">Kembali ke Dashboard</a>
     </div>
 
+    <!-- NOTIFIKASI -->
+    <?php if (isset($_SESSION['pesan'])): ?>
+        <div class="mb-4 px-4 py-3 rounded-lg text-sm font-medium
+            <?= $_SESSION['tipe'] === 'sukses' ? 'bg-green-100 text-green-700 border border-green-300' : 'bg-red-100 text-red-700 border border-red-300' ?>">
+            <?= $_SESSION['pesan']; ?>
+        </div>
+        <?php unset($_SESSION['pesan']); unset($_SESSION['tipe']); ?>
+    <?php endif; ?>
+
     <!-- HEADER -->
     <div class="flex justify-between items-center mb-6">
         <div>
             <h1 class="text-3xl font-bold text-slate-800 tracking-tight">Data Mahasiswa</h1>
             <p class="text-sm text-slate-500 mt-1">Daftar data mahasiswa yang terdaftar.</p>
         </div>
+        <button onclick="bukaModalTambah()"
+            class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl text-sm font-medium transition">
+            + Tambah Mahasiswa
+        </button>
     </div>
 
     <!-- TABLE -->
@@ -124,10 +162,10 @@ include 'includes/koneksi.php';
             <thead>
                 <tr class="bg-slate-100 border-b border-slate-200">
                     <th class="py-4 px-6 text-sm font-semibold text-slate-700 uppercase tracking-wider">No</th>
-                    <th class="py-4 px-6 text-sm font-semibold text-slate-700 uppercase tracking-wider">Foto</th>
                     <th class="py-4 px-6 text-sm font-semibold text-slate-700 uppercase tracking-wider">NIM</th>
                     <th class="py-4 px-6 text-sm font-semibold text-slate-700 uppercase tracking-wider">Nama</th>
-                    <th class="py-4 px-6 text-sm font-semibold text-slate-700 uppercase tracking-wider">Jurusan</th>
+                    <th class="py-4 px-6 text-sm font-semibold text-slate-700 uppercase tracking-wider">No. HP</th>
+                    <th class="py-4 px-6 text-sm font-semibold text-slate-700 uppercase tracking-wider text-center">Aksi</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-slate-200 text-slate-600">
@@ -138,11 +176,25 @@ include 'includes/koneksi.php';
                 ?>
                 <tr class="hover:bg-slate-50 transition duration-150">
                     <td class="py-4 px-6"><?= $no++; ?></td>
-                    <td class="py-4 px-6">
+                    <td class="py-4 px-6 font-mono text-sm text-indigo-600 font-semibold"><?= htmlspecialchars($data['nim']); ?></td>
+                    <td class="py-4 px-6 font-medium text-slate-900"><?= htmlspecialchars($data['namamhs']); ?></td>
+                    <td class="py-4 px-6"><?= htmlspecialchars($data['handphone']); ?></td>
+                    <td class="py-4 px-6 text-center">
+                        <div class="flex gap-2 justify-center">
+                            <!-- Tombol Edit -->
+                            <button
+                                onclick="bukaModalEdit('<?= $data['nim'] ?>', '<?= htmlspecialchars($data['nim'], ENT_QUOTES) ?>', '<?= htmlspecialchars($data['namamhs'], ENT_QUOTES) ?>', '<?= htmlspecialchars($data['handphone'], ENT_QUOTES) ?>')"
+                                class="bg-yellow-400 hover:bg-yellow-500 text-white text-xs font-semibold px-4 py-1.5 rounded-lg transition">
+                                Edit
+                            </button>
+                            <!-- Tombol Hapus -->
+                            <a href="mahasiswa_action.php?aksi=hapus&id=<?= $data['nim'] ?>"
+                                onclick="return confirm('Yakin ingin hapus mahasiswa ini?')"
+                                class="bg-red-500 hover:bg-red-600 text-white text-xs font-semibold px-4 py-1.5 rounded-lg transition">
+                                Hapus
+                            </a>
+                        </div>
                     </td>
-                    <td class="py-4 px-6 font-mono text-sm text-indigo-600 font-semibold"><?= $data['nim']; ?></td>
-                    <td class="py-4 px-6 font-medium text-slate-900"><?= $data['namamhs']; ?></td>
-                    <td class="py-4 px-6"><?= $data['handphone']; ?></td>
                 </tr>
                 <?php endwhile; ?>
             </tbody>
@@ -150,6 +202,115 @@ include 'includes/koneksi.php';
     </div>
 
 </div>
+
+<!-- ===== MODAL TAMBAH ===== -->
+<div class="modal-overlay" id="modalTambah">
+    <div class="modal-box">
+        <h2 class="text-xl font-bold text-slate-800 mb-5">Tambah Mahasiswa</h2>
+        <form action="mahasiswa_action.php" method="POST">
+            <input type="hidden" name="aksi" value="tambah">
+
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-slate-700 mb-1">NIM</label>
+                <input type="text" name="nim" required
+                    class="w-full border border-slate-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Contoh: 12345678">
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-slate-700 mb-1">Nama Mahasiswa</label>
+                <input type="text" name="namamhs" required
+                    class="w-full border border-slate-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Nama lengkap">
+            </div>
+
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-slate-700 mb-1">No. HP</label>
+                <input type="text" name="handphone"
+                    class="w-full border border-slate-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="08xxxxxxxxxx">
+            </div>
+
+            <div class="flex gap-3 justify-end">
+                <button type="button" onclick="tutupModal('modalTambah')"
+                    class="px-5 py-2 rounded-lg border border-slate-300 text-sm text-slate-600 hover:bg-slate-50 transition">
+                    Batal
+                </button>
+                <button type="submit"
+                    class="px-5 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition">
+                    Simpan
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ===== MODAL EDIT ===== -->
+<div class="modal-overlay" id="modalEdit">
+    <div class="modal-box">
+        <h2 class="text-xl font-bold text-slate-800 mb-5">Edit Mahasiswa</h2>
+        <form action="mahasiswa_action.php" method="POST">
+            <input type="hidden" name="aksi" value="edit">
+            <input type="hidden" name="id" id="editId">
+
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-slate-700 mb-1">NIM</label>
+                <input type="text" name="nim" id="editNim" required
+                    class="w-full border border-slate-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400">
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-slate-700 mb-1">Nama Mahasiswa</label>
+                <input type="text" name="namamhs" id="editNama" required
+                    class="w-full border border-slate-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400">
+            </div>
+
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-slate-700 mb-1">No. HP</label>
+                <input type="text" name="handphone" id="editHp"
+                    class="w-full border border-slate-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400">
+            </div>
+
+            <div class="flex gap-3 justify-end">
+                <button type="button" onclick="tutupModal('modalEdit')"
+                    class="px-5 py-2 rounded-lg border border-slate-300 text-sm text-slate-600 hover:bg-slate-50 transition">
+                    Batal
+                </button>
+                <button type="submit"
+                    class="px-5 py-2 rounded-lg bg-yellow-400 hover:bg-yellow-500 text-white text-sm font-semibold transition">
+                    Update
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function bukaModalTambah() {
+        document.getElementById('modalTambah').classList.add('active');
+    }
+
+    function bukaModalEdit(id, nim, nama, hp) {
+        document.getElementById('editId').value = id;
+        document.getElementById('editNim').value = nim;
+        document.getElementById('editNama').value = nama;
+        document.getElementById('editHp').value = hp;
+        document.getElementById('modalEdit').classList.add('active');
+    }
+
+    function tutupModal(idModal) {
+        document.getElementById(idModal).classList.remove('active');
+    }
+
+    // Klik di luar modal = tutup
+    document.querySelectorAll('.modal-overlay').forEach(function(overlay) {
+        overlay.addEventListener('click', function(e) {
+            if (e.target === overlay) {
+                overlay.classList.remove('active');
+            }
+        });
+    });
+</script>
 
 </body>
 </html>

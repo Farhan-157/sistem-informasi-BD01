@@ -77,13 +77,12 @@ session_start();
                     <img src="img/windut.jpg">
                     <img src="img/windut.jpg">
                     <img src="img/windut.jpg">
-                    <img src="img/windut.jpg">
+                    <img src="img/gwe.jpeg">
                 </div>
 
                 <div class="socials">
-                    <a href="#">Instagram ↗</a>
-                    <a href="#">Facebook ↗</a>
-                    <a href="#">TikTok ↗</a>
+                    <a href="https://www.instagram.com/f.hans15?igsh=YWJ5dWM0MGFwYzF0" target="_blank">Instagram ↗</a>
+                    <a href="https://github.com/Farhan-157/sistem-informasi-BD01" target="_blank">GitHub ↗</a>
                 </div>
 
             </div>
