@@ -155,7 +155,7 @@ h2{
 
 <div class="box">
 
-    <h1>Selamat Datang</h1>
+    <h1>Sampai jumpa!</h1>
 
     <h2>
         <?php echo $_SESSION['username']; ?>

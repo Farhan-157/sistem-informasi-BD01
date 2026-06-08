@@ -167,12 +167,13 @@ include 'includes/koneksi.php';
 
     <div class="navbar">
         <div class="logo">BASIS DATA 01</div>
-        <div class="nav-links">
+         <div class="nav-links">
             <a href="index.php">Beranda</a>
             <a href="mahasiswa.php">Mahasiswa</a>
             <a href="dosen.php">Dosen</a>
+            <a href="dopem.php">Dospem</a>
             <a href="matkul.php">Mata Kuliah</a>
-            <a href="nilai.php" class="active">Nilai</a>
+            <a href="nilai.php">Nilai</a>
             <a href="anggota.php">Anggota</a>
         </div>
         <a href="index.php" class="btn-book">Kembali ke Dashboard</a>

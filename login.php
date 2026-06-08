@@ -1,6 +1,8 @@
 <?php
 session_start();
 
+include 'config.php';
+
 $error = "";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -8,11 +10,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $username = $_POST['username'];
     $password = $_POST['password'];
 
-    
-    $valid_user = "admin";
-    $valid_pass = "12345";
+    $query = mysqli_query(
+        $conn,
+        "SELECT * FROM tbl_users
+        WHERE username='$username'
+        AND password='$password'"
+    );
 
-    if ($username == $valid_user && $password == $valid_pass) {
+    if(mysqli_num_rows($query) > 0){
 
         $_SESSION['login'] = true;
         $_SESSION['username'] = $username;
@@ -20,7 +25,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         header("Location: index.php");
         exit();
 
-    } else {
+    }else{
+
         $error = "Username atau Password salah!";
     }
 }
@@ -243,9 +249,9 @@ body{
     </form>
 
     <div class="extra">
-        <a href="#">Lupa Password?</a>
-        <a href="#">Daftar</a>
-    </div>
+    <a href="forgot_password.php">Lupa Password?</a>
+    <a href="register.php">Daftar</a>
+</div>
 
     <div class="footer">
         © 2026 kelompok 7 ilmu komputer universitas djuanda

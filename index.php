@@ -48,7 +48,6 @@ session_start();
         }
         .btn-book:hover { background: #1e293b; }
 
-        /* HERO CONTENT */
         .hero-content {
             display: flex;
             flex-direction: column;
@@ -78,7 +77,6 @@ session_start();
         }
         .btn-start:hover { background: #1f2937; transform: translateY(-3px); }
 
-        /* BOTTOM */
         .bottom-info {
             position: fixed;
             bottom: 25px; left: 0; right: 0;
@@ -101,21 +99,21 @@ session_start();
 <body>
 <div class="container-custom">
 
-    <!-- NAVBAR -->
     <div class="navbar">
         <div class="logo">BASIS DATA 01</div>
         <div class="nav-links">
             <a href="index.php" class="active">Beranda</a>
             <a href="mahasiswa.php">Mahasiswa</a>
             <a href="dosen.php">Dosen</a>
-            <a href="matkul.php">Mata kuliah</a>
+            <a href="dopem.php">Dospem</a>
+            <a href="matkul.php">Mata Kuliah</a>
             <a href="nilai.php">Nilai</a>
             <a href="anggota.php">Anggota</a>
         </div>
-        <?php if(isset($_SESSION['login'])){ ?>
-        <a href="logout.php" class="btn-book">Logout ↗</a>
-        <?php } else { ?>
+        <?php if(!isset($_SESSION['login'])){ ?>
         <a href="login.php" class="btn-book">Login ↗</a>
+        <?php } else { ?>
+        <a href="logout.php" class="btn-book">logout ↗</a>
         <?php } ?>
     </div>
 
@@ -133,12 +131,12 @@ session_start();
 <div class="bottom-info">
     <div class="players">
         <span>Our Team : </span>
-        <img src="img/windut.jpg">
-        <img src="img/windut.jpg">
-        <img src="img/windut.jpg">
         <img src="img/aufa.jpeg">
+        <img src="img/dafa.jpeg">
+        <img src="img/nabil.jpeg">
+        <img src="img/syihan.jpeg">
         <img src="img/alza.jpeg">
-        <img src="img/gwe.jpeg">
+        <img src="img/farhan.jpeg">
     </div>
     <div class="socials">
         <a href="https://www.instagram.com/f.hans15?igsh=YWJ5dWM0MGFwYzF0" target="_blank">Instagram ↗</a>

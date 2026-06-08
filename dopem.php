@@ -2,38 +2,79 @@
 session_start();
 include 'includes/koneksi.php';
 
-// Tambah data matkul
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['tambah_matkul'])) {
-    $kode = mysqli_real_escape_string($conn, trim($_POST['kodemk']));
-    $nama = mysqli_real_escape_string($conn, trim($_POST['namamk']));
-    $sks  = mysqli_real_escape_string($conn, trim($_POST['sks']));
-    mysqli_query($conn, "INSERT INTO tbl_matakuliah (kodemk, namamk, sks) VALUES ('$kode', '$nama', '$sks')");
-    $_SESSION['pesan'] = 'Mata kuliah berhasil ditambahkan!';
-    $_SESSION['tipe']  = 'sukses';
-    header("Location: matkul.php");
+// =====================
+// PROSES CRUD
+// =====================
+$aksi = $_POST['aksi'] ?? $_GET['aksi'] ?? '';
+
+// TAMBAH
+if ($aksi === 'tambah') {
+    $nim       = trim($_POST['nim']);
+    $namamhs   = trim($_POST['namamhs']);
+    $nid       = trim($_POST['nid']);
+    $namadosen = trim($_POST['namadosen']);
+
+    if ($nim && $namamhs && $nid && $namadosen) {
+        $nim       = mysqli_real_escape_string($conn, $nim);
+        $namamhs   = mysqli_real_escape_string($conn, $namamhs);
+        $nid       = mysqli_real_escape_string($conn, $nid);
+        $namadosen = mysqli_real_escape_string($conn, $namadosen);
+
+        $query = mysqli_query($conn,
+            "INSERT INTO tbl_dopem (nim, namamhs, nid, namadosen)
+             VALUES ('$nim', '$namamhs', '$nid', '$namadosen')"
+        );
+
+        $_SESSION['pesan'] = $query ? 'Data dosen pembimbing berhasil ditambahkan.' : 'Gagal menambahkan data: ' . mysqli_error($conn);
+        $_SESSION['tipe']  = $query ? 'sukses' : 'gagal';
+    } else {
+        $_SESSION['pesan'] = 'Semua field wajib diisi.';
+        $_SESSION['tipe']  = 'gagal';
+    }
+    header('Location: dopem.php');
     exit;
 }
 
-// Edit data matkul
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['edit_matkul'])) {
-    $kode_lama = mysqli_real_escape_string($conn, trim($_POST['kodemk_lama']));
-    $kode      = mysqli_real_escape_string($conn, trim($_POST['kodemk']));
-    $nama      = mysqli_real_escape_string($conn, trim($_POST['namamk']));
-    $sks       = mysqli_real_escape_string($conn, trim($_POST['sks']));
-    mysqli_query($conn, "UPDATE tbl_matakuliah SET kodemk='$kode', namamk='$nama', sks='$sks' WHERE kodemk='$kode_lama'");
-    $_SESSION['pesan'] = 'Mata kuliah berhasil diupdate!';
-    $_SESSION['tipe']  = 'sukses';
-    header("Location: matkul.php");
+// EDIT
+if ($aksi === 'edit') {
+    $nim_lama  = mysqli_real_escape_string($conn, trim($_POST['nim_lama']));
+    $nid_lama  = mysqli_real_escape_string($conn, trim($_POST['nid_lama']));
+    $nim       = mysqli_real_escape_string($conn, trim($_POST['nim']));
+    $namamhs   = mysqli_real_escape_string($conn, trim($_POST['namamhs']));
+    $nid       = mysqli_real_escape_string($conn, trim($_POST['nid']));
+    $namadosen = mysqli_real_escape_string($conn, trim($_POST['namadosen']));
+
+    if ($nim && $namamhs && $nid && $namadosen) {
+        $query = mysqli_query($conn,
+            "UPDATE tbl_dopem
+             SET nim='$nim', namamhs='$namamhs', nid='$nid', namadosen='$namadosen'
+             WHERE nim='$nim_lama' AND nid='$nid_lama'"
+        );
+
+        $_SESSION['pesan'] = $query ? 'Data dosen pembimbing berhasil diperbarui.' : 'Gagal memperbarui data: ' . mysqli_error($conn);
+        $_SESSION['tipe']  = $query ? 'sukses' : 'gagal';
+    } else {
+        $_SESSION['pesan'] = 'Semua field wajib diisi.';
+        $_SESSION['tipe']  = 'gagal';
+    }
+    header('Location: dopem.php');
     exit;
 }
 
-// Hapus data matkul
-if (isset($_GET['aksi']) && $_GET['aksi'] === 'hapus') {
-    $kode = mysqli_real_escape_string($conn, trim($_GET['kodemk']));
-    mysqli_query($conn, "DELETE FROM tbl_matakuliah WHERE kodemk='$kode'");
-    $_SESSION['pesan'] = 'Mata kuliah berhasil dihapus!';
-    $_SESSION['tipe']  = 'sukses';
-    header("Location: matkul.php");
+// HAPUS
+if ($aksi === 'hapus') {
+    $nim = mysqli_real_escape_string($conn, $_GET['nim'] ?? '');
+    $nid = mysqli_real_escape_string($conn, $_GET['nid'] ?? '');
+
+    if ($nim && $nid) {
+        $query = mysqli_query($conn, "DELETE FROM tbl_dopem WHERE nim='$nim' AND nid='$nid'");
+        $_SESSION['pesan'] = $query ? 'Data dosen pembimbing berhasil dihapus.' : 'Gagal menghapus data: ' . mysqli_error($conn);
+        $_SESSION['tipe']  = $query ? 'sukses' : 'gagal';
+    } else {
+        $_SESSION['pesan'] = 'Data tidak ditemukan.';
+        $_SESSION['tipe']  = 'gagal';
+    }
+    header('Location: dopem.php');
     exit;
 }
 ?>
@@ -42,7 +83,7 @@ if (isset($_GET['aksi']) && $_GET['aksi'] === 'hapus') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daftar Mata Kuliah</title>
+    <title>Data Dosen Pembimbing</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
@@ -82,16 +123,11 @@ if (isset($_GET['aksi']) && $_GET['aksi'] === 'hapus') {
         .logo { font-size: 28px; font-weight: 600; color: white; }
         .nav-links { display: flex; gap: 35px; }
         .nav-links a { text-decoration: none; color: white; font-size: 15px; transition: 0.3s; }
-        .nav-links a:hover, .nav-links a.active { color: #93c5fd; }
+        .nav-links a:hover, .nav-links a.active { color: #2563eb; }
 
         .btn-book {
-            background: #0f172a;
-            color: white;
-            padding: 12px 28px;
-            border-radius: 30px;
-            text-decoration: none;
-            font-size: 14px;
-            transition: 0.3s;
+            background: #0f172a; color: white; padding: 12px 28px;
+            border-radius: 30px; text-decoration: none; font-size: 14px; transition: 0.3s;
         }
         .btn-book:hover { background: #1e293b; }
 
@@ -106,7 +142,10 @@ if (isset($_GET['aksi']) && $_GET['aksi'] === 'hapus') {
             background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5;
         }
 
-        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+        .page-header {
+            display: flex; justify-content: space-between;
+            align-items: center; margin-bottom: 20px;
+        }
         .page-header h1 { font-size: 28px; font-weight: 700; color: white; }
         .page-header p { font-size: 14px; color: rgba(255,255,255,0.7); margin-top: 4px; }
 
@@ -117,11 +156,7 @@ if (isset($_GET['aksi']) && $_GET['aksi'] === 'hapus') {
         }
         .btn-tambah:hover { background: #1d4ed8; }
 
-        .table-wrapper {
-            background: transparent;
-            border-radius: 16px;
-            overflow: hidden;
-        }
+        .table-wrapper { background: transparent; border-radius: 16px; overflow: hidden; }
 
         table { width: 100%; border-collapse: collapse; text-align: left; }
         thead tr { background: rgba(0,0,0,0.35); border-bottom: 1px solid rgba(255,255,255,0.15); }
@@ -131,8 +166,8 @@ if (isset($_GET['aksi']) && $_GET['aksi'] === 'hapus') {
         tbody tr:hover { background: rgba(0,0,0,0.25); }
         td { padding: 16px 24px; font-size: 14px; color: white; }
 
-        .td-kode { font-family: monospace; font-size: 13px; color: #a5b4fc; font-weight: 600; }
-        .td-nama { font-weight: 500; color: white; }
+        .td-id { font-family: monospace; font-size: 13px; color: #ffffff; font-weight: 600; }
+        .td-nama { font-weight: 500; color: #ffffff; }
         .td-aksi { text-align: center; }
         .aksi-wrap { display: flex; gap: 8px; justify-content: center; }
 
@@ -209,19 +244,22 @@ if (isset($_GET['aksi']) && $_GET['aksi'] === 'hapus') {
 
 <div class="container-custom">
 
+    <!-- NAVBAR -->
     <div class="navbar">
         <div class="logo">BASIS DATA 01</div>
-         <div class="nav-links">
+        <div class="nav-links">
             <a href="index.php">Beranda</a>
             <a href="mahasiswa.php">Mahasiswa</a>
             <a href="dosen.php">Dosen</a>
-            <a href="dopem.php">Dospem</a>
+            <a href="dopem.php" class="active">Dospem</a>
             <a href="matkul.php">Mata Kuliah</a>
             <a href="nilai.php">Nilai</a>
             <a href="anggota.php">Anggota</a>
         </div>
         <a href="index.php" class="btn-book">Kembali ke Dashboard</a>
     </div>
+
+    <!-- NOTIFIKASI -->
     <?php if (isset($_SESSION['pesan'])): ?>
         <div class="<?= $_SESSION['tipe'] === 'sukses' ? 'notif-sukses' : 'notif-gagal' ?>">
             <?= $_SESSION['pesan']; ?>
@@ -229,41 +267,53 @@ if (isset($_GET['aksi']) && $_GET['aksi'] === 'hapus') {
         <?php unset($_SESSION['pesan']); unset($_SESSION['tipe']); ?>
     <?php endif; ?>
 
+    <!-- HEADER -->
     <div class="page-header">
         <div>
-            <h1>Mata Kuliah</h1>
-            <p>Daftar manajemen mata kuliah semester ini.</p>
+            <h1>Data Dosen Pembimbing</h1>
+            <p>Daftar dosen pembimbing mahasiswa.</p>
         </div>
-        <button class="btn-tambah" onclick="bukaModal('modalTambah')">+ Tambah Matkul</button>
+        <button class="btn-tambah" onclick="bukaModalTambah()">+ Tambah Dospem</button>
     </div>
 
+    <!-- TABLE -->
     <div class="table-wrapper">
         <table>
             <thead>
                 <tr>
-                    <th>Kode MK</th>
-                    <th>Nama MK</th>
-                    <th style="text-align:center;">SKS</th>
+                    <th>No</th>
+                    <th>NIM</th>
+                    <th>Nama Mahasiswa</th>
+                    <th>NID</th>
+                    <th>Nama Dosen</th>
                     <th style="text-align:center;">Aksi</th>
                 </tr>
             </thead>
             <tbody>
                 <?php
-                $query = mysqli_query($conn, "SELECT * FROM tbl_matakuliah");
-                while ($matkul = mysqli_fetch_assoc($query)) :
+                $no = 1;
+                $query = mysqli_query($conn, "SELECT * FROM tbl_dopem");
+                while ($data = mysqli_fetch_assoc($query)) :
                 ?>
                 <tr>
-                    <td class="td-kode"><?= htmlspecialchars($matkul['kodemk']); ?></td>
-                    <td class="td-nama"><?= htmlspecialchars($matkul['namamk']); ?></td>
-                    <td style="text-align:center;"><?= htmlspecialchars($matkul['sks']); ?></td>
+                    <td><?= $no++; ?></td>
+                    <td class="td-id"><?= htmlspecialchars($data['nim']); ?></td>
+                    <td class="td-nama"><?= htmlspecialchars($data['namamhs']); ?></td>
+                    <td class="td-id"><?= htmlspecialchars($data['nid']); ?></td>
+                    <td><?= htmlspecialchars($data['namadosen']); ?></td>
                     <td class="td-aksi">
                         <div class="aksi-wrap">
                             <button class="btn-edit"
-                                onclick="bukaModalEdit('<?= htmlspecialchars($matkul['kodemk'], ENT_QUOTES) ?>', '<?= htmlspecialchars($matkul['namamk'], ENT_QUOTES) ?>', '<?= htmlspecialchars($matkul['sks'], ENT_QUOTES) ?>')">
+                                onclick="bukaModalEdit(
+                                    '<?= htmlspecialchars($data['nim'], ENT_QUOTES) ?>',
+                                    '<?= htmlspecialchars($data['namamhs'], ENT_QUOTES) ?>',
+                                    '<?= htmlspecialchars($data['nid'], ENT_QUOTES) ?>',
+                                    '<?= htmlspecialchars($data['namadosen'], ENT_QUOTES) ?>'
+                                )">
                                 Edit
                             </button>
-                            <a href="matkul.php?aksi=hapus&kodemk=<?= urlencode($matkul['kodemk']) ?>"
-                                onclick="return confirm('Yakin ingin hapus mata kuliah ini?')"
+                            <a href="dopem.php?aksi=hapus&nim=<?= urlencode($data['nim']) ?>&nid=<?= urlencode($data['nid']) ?>"
+                                onclick="return confirm('Yakin ingin hapus data dospem ini?')"
                                 class="btn-hapus">Hapus</a>
                         </div>
                     </td>
@@ -278,23 +328,28 @@ if (isset($_GET['aksi']) && $_GET['aksi'] === 'hapus') {
 <!-- MODAL TAMBAH -->
 <div class="modal-overlay" id="modalTambah">
     <div class="modal-box">
-        <h2>Tambah Mata Kuliah</h2>
-        <form action="" method="POST">
+        <h2>Tambah Dosen Pembimbing</h2>
+        <form action="dopem.php" method="POST">
+            <input type="hidden" name="aksi" value="tambah">
             <div class="form-group">
-                <label>Kode Matkul</label>
-                <input type="text" name="kodemk" required placeholder="Contoh: INF-103">
+                <label>NIM Mahasiswa</label>
+                <input type="text" name="nim" required placeholder="Contoh: 12345678">
             </div>
             <div class="form-group">
-                <label>Nama Mata Kuliah</label>
-                <input type="text" name="namamk" required placeholder="Contoh: Pemrograman Web">
+                <label>Nama Mahasiswa</label>
+                <input type="text" name="namamhs" required placeholder="Nama lengkap mahasiswa">
             </div>
             <div class="form-group">
-                <label>SKS</label>
-                <input type="number" name="sks" required placeholder="Contoh: 3">
+                <label>NID Dosen</label>
+                <input type="text" name="nid" required placeholder="Contoh: D001">
+            </div>
+            <div class="form-group">
+                <label>Nama Dosen</label>
+                <input type="text" name="namadosen" required placeholder="Nama lengkap dosen">
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn-batal" onclick="tutupModal('modalTambah')">Batal</button>
-                <button type="submit" name="tambah_matkul" class="btn-simpan">Simpan</button>
+                <button type="submit" class="btn-simpan">Simpan</button>
             </div>
         </form>
     </div>
@@ -303,38 +358,46 @@ if (isset($_GET['aksi']) && $_GET['aksi'] === 'hapus') {
 <!-- MODAL EDIT -->
 <div class="modal-overlay" id="modalEdit">
     <div class="modal-box">
-        <h2>Edit Mata Kuliah</h2>
-        <form action="" method="POST">
-            <input type="hidden" name="kodemk_lama" id="editKodeLama">
+        <h2>Edit Dosen Pembimbing</h2>
+        <form action="dopem.php" method="POST">
+            <input type="hidden" name="aksi" value="edit">
+            <input type="hidden" name="nim_lama" id="editNimLama">
+            <input type="hidden" name="nid_lama" id="editNidLama">
             <div class="form-group">
-                <label>Kode Matkul</label>
-                <input type="text" name="kodemk" id="editKode" required>
+                <label>NIM Mahasiswa</label>
+                <input type="text" name="nim" id="editNim" required>
             </div>
             <div class="form-group">
-                <label>Nama Mata Kuliah</label>
-                <input type="text" name="namamk" id="editNama" required>
+                <label>Nama Mahasiswa</label>
+                <input type="text" name="namamhs" id="editNama" required>
             </div>
             <div class="form-group">
-                <label>SKS</label>
-                <input type="number" name="sks" id="editSks" required>
+                <label>NID Dosen</label>
+                <input type="text" name="nid" id="editNid" required>
+            </div>
+            <div class="form-group">
+                <label>Nama Dosen</label>
+                <input type="text" name="namadosen" id="editNamaDosen" required>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn-batal" onclick="tutupModal('modalEdit')">Batal</button>
-                <button type="submit" name="edit_matkul" class="btn-update">Update</button>
+                <button type="submit" class="btn-update">Update</button>
             </div>
         </form>
     </div>
 </div>
 
 <script>
-    function bukaModal(idModal) {
-        document.getElementById(idModal).classList.add('active');
+    function bukaModalTambah() {
+        document.getElementById('modalTambah').classList.add('active');
     }
-    function bukaModalEdit(kode, nama, sks) {
-        document.getElementById('editKodeLama').value = kode;
-        document.getElementById('editKode').value = kode;
-        document.getElementById('editNama').value = nama;
-        document.getElementById('editSks').value = sks;
+    function bukaModalEdit(nim, namamhs, nid, namadosen) {
+        document.getElementById('editNimLama').value = nim;
+        document.getElementById('editNidLama').value = nid;
+        document.getElementById('editNim').value = nim;
+        document.getElementById('editNama').value = namamhs;
+        document.getElementById('editNid').value = nid;
+        document.getElementById('editNamaDosen').value = namadosen;
         document.getElementById('modalEdit').classList.add('active');
     }
     function tutupModal(idModal) {

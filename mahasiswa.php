@@ -26,14 +26,14 @@ include 'includes/koneksi.php';
             z-index: 0;
         }
 
-      .container-custom {
-    max-width: 1200px;
-    margin: auto;
-    background: transparent;
-    padding: 25px;
-    position: relative;
-    z-index: 1;
-}
+        .container-custom {
+            max-width: 1200px;
+            margin: auto;
+            background: transparent;
+            padding: 25px;
+            position: relative;
+            z-index: 1;
+        }
 
         .navbar {
             display: flex;
@@ -71,7 +71,15 @@ include 'includes/koneksi.php';
             background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5;
         }
 
-        .page-header h1 { font-size: 28px; font-weight: 700; color: white; }
+        /* === BAGIAN YANG DIUBAH === */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        /* ========================== */
+
         .page-header h1 { font-size: 28px; font-weight: 700; color: white; }
         .page-header p { font-size: 14px; color: rgba(255,255,255,0.7); margin-top: 4px; }
 
@@ -83,20 +91,20 @@ include 'includes/koneksi.php';
         .btn-tambah:hover { background: #1d4ed8; }
 
         .table-wrapper {
-    background: transparent; border-radius: 16px;
-    overflow: hidden;
-}
+            background: transparent; border-radius: 16px;
+            overflow: hidden;
+        }
 
-table { width: 100%; border-collapse: collapse; text-align: left; }
-thead tr { background: rgba(0,0,0,0.35); border-bottom: 1px solid rgba(255,255,255,0.15); }
-th { padding: 16px 24px; font-size: 13px; font-weight: 600; color: white; text-transform: uppercase; letter-spacing: 0.05em; }
-tbody tr { border-bottom: 1px solid rgba(255,255,255,0.1); transition: background 0.15s; }
-tbody tr:last-child { border-bottom: none; }
-tbody tr:hover { background: rgba(0,0,0,0.25); }
-td { padding: 16px 24px; font-size: 14px; color: white; }
+        table { width: 100%; border-collapse: collapse; text-align: left; }
+        thead tr { background: rgba(0,0,0,0.35); border-bottom: 1px solid rgba(255,255,255,0.15); }
+        th { padding: 16px 24px; font-size: 13px; font-weight: 600; color: white; text-transform: uppercase; letter-spacing: 0.05em; }
+        tbody tr { border-bottom: 1px solid rgba(255,255,255,0.1); transition: background 0.15s; }
+        tbody tr:last-child { border-bottom: none; }
+        tbody tr:hover { background: rgba(0,0,0,0.25); }
+        td { padding: 16px 24px; font-size: 14px; color: white; }
 
-        .td-nim { font-family: monospace; font-size: 13px; color: #4f46e5; font-weight: 600; }
-        .td-nama { font-weight: 500; color: #0f172a; }
+        .td-nim { font-family: monospace; font-size: 13px; color: #ffffff; font-weight: 600; }
+        .td-nama { font-weight: 500; color: #ffffff; }
         .td-aksi { text-align: center; }
         .aksi-wrap { display: flex; gap: 8px; justify-content: center; }
 
@@ -179,8 +187,9 @@ td { padding: 16px 24px; font-size: 14px; color: white; }
             <a href="index.php">Beranda</a>
             <a href="mahasiswa.php">Mahasiswa</a>
             <a href="dosen.php">Dosen</a>
+            <a href="dopem.php">Dospem</a>
             <a href="matkul.php">Mata Kuliah</a>
-            <a href="nilai.php" class="active">Nilai</a>
+            <a href="nilai.php">Nilai</a>
             <a href="anggota.php">Anggota</a>
         </div>
         <a href="index.php" class="btn-book">Kembali ke Dashboard</a>
