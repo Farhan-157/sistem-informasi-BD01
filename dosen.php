@@ -1,48 +1,13 @@
 <?php
 session_start();
 include 'includes/koneksi.php';
-
-// Tambah data matkul
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['tambah_matkul'])) {
-    $kode = mysqli_real_escape_string($conn, trim($_POST['kodemk']));
-    $nama = mysqli_real_escape_string($conn, trim($_POST['namamk']));
-    $sks  = mysqli_real_escape_string($conn, trim($_POST['sks']));
-    mysqli_query($conn, "INSERT INTO tbl_matakuliah (kodemk, namamk, sks) VALUES ('$kode', '$nama', '$sks')");
-    $_SESSION['pesan'] = 'Mata kuliah berhasil ditambahkan!';
-    $_SESSION['tipe']  = 'sukses';
-    header("Location: matkul.php");
-    exit;
-}
-
-// Edit data matkul
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['edit_matkul'])) {
-    $kode_lama = mysqli_real_escape_string($conn, trim($_POST['kodemk_lama']));
-    $kode      = mysqli_real_escape_string($conn, trim($_POST['kodemk']));
-    $nama      = mysqli_real_escape_string($conn, trim($_POST['namamk']));
-    $sks       = mysqli_real_escape_string($conn, trim($_POST['sks']));
-    mysqli_query($conn, "UPDATE tbl_matakuliah SET kodemk='$kode', namamk='$nama', sks='$sks' WHERE kodemk='$kode_lama'");
-    $_SESSION['pesan'] = 'Mata kuliah berhasil diupdate!';
-    $_SESSION['tipe']  = 'sukses';
-    header("Location: matkul.php");
-    exit;
-}
-
-// Hapus data matkul
-if (isset($_GET['aksi']) && $_GET['aksi'] === 'hapus') {
-    $kode = mysqli_real_escape_string($conn, trim($_GET['kodemk']));
-    mysqli_query($conn, "DELETE FROM tbl_matakuliah WHERE kodemk='$kode'");
-    $_SESSION['pesan'] = 'Mata kuliah berhasil dihapus!';
-    $_SESSION['tipe']  = 'sukses';
-    header("Location: matkul.php");
-    exit;
-}
 ?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daftar Mata Kuliah</title>
+    <title>Data Dosen</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
@@ -85,13 +50,8 @@ if (isset($_GET['aksi']) && $_GET['aksi'] === 'hapus') {
         .nav-links a:hover, .nav-links a.active { color: #93c5fd; }
 
         .btn-book {
-            background: #0f172a;
-            color: white;
-            padding: 12px 28px;
-            border-radius: 30px;
-            text-decoration: none;
-            font-size: 14px;
-            transition: 0.3s;
+            background: #0f172a; color: white; padding: 12px 28px;
+            border-radius: 30px; text-decoration: none; font-size: 14px; transition: 0.3s;
         }
         .btn-book:hover { background: #1e293b; }
 
@@ -117,11 +77,7 @@ if (isset($_GET['aksi']) && $_GET['aksi'] === 'hapus') {
         }
         .btn-tambah:hover { background: #1d4ed8; }
 
-        .table-wrapper {
-            background: transparent;
-            border-radius: 16px;
-            overflow: hidden;
-        }
+        .table-wrapper { background: transparent; border-radius: 16px; overflow: hidden; }
 
         table { width: 100%; border-collapse: collapse; text-align: left; }
         thead tr { background: rgba(0,0,0,0.35); border-bottom: 1px solid rgba(255,255,255,0.15); }
@@ -131,7 +87,7 @@ if (isset($_GET['aksi']) && $_GET['aksi'] === 'hapus') {
         tbody tr:hover { background: rgba(0,0,0,0.25); }
         td { padding: 16px 24px; font-size: 14px; color: white; }
 
-        .td-kode { font-family: monospace; font-size: 13px; color: #a5b4fc; font-weight: 600; }
+        .td-nid { font-family: monospace; font-size: 13px; color: #a5b4fc; font-weight: 600; }
         .td-nama { font-weight: 500; color: white; }
         .td-aksi { text-align: center; }
         .aksi-wrap { display: flex; gap: 8px; justify-content: center; }
@@ -222,6 +178,7 @@ if (isset($_GET['aksi']) && $_GET['aksi'] === 'hapus') {
         </div>
         <a href="index.php" class="btn-book">Kembali ke Dashboard</a>
     </div>
+    
     <?php if (isset($_SESSION['pesan'])): ?>
         <div class="<?= $_SESSION['tipe'] === 'sukses' ? 'notif-sukses' : 'notif-gagal' ?>">
             <?= $_SESSION['pesan']; ?>
@@ -231,39 +188,40 @@ if (isset($_GET['aksi']) && $_GET['aksi'] === 'hapus') {
 
     <div class="page-header">
         <div>
-            <h1>Mata Kuliah</h1>
-            <p>Daftar manajemen mata kuliah semester ini.</p>
+            <h1>Data Dosen</h1>
+            <p>Daftar data dosen yang terdaftar.</p>
         </div>
-        <button class="btn-tambah" onclick="bukaModal('modalTambah')">+ Tambah Matkul</button>
+        <button class="btn-tambah" onclick="bukaModalTambah()">+ Tambah Dosen</button>
     </div>
 
     <div class="table-wrapper">
         <table>
             <thead>
                 <tr>
-                    <th>Kode MK</th>
-                    <th>Nama MK</th>
-                    <th style="text-align:center;">SKS</th>
+                    <th>No</th>
+                    <th>NID</th>
+                    <th>Nama Dosen</th>
                     <th style="text-align:center;">Aksi</th>
                 </tr>
             </thead>
             <tbody>
                 <?php
-                $query = mysqli_query($conn, "SELECT * FROM tbl_matakuliah");
-                while ($matkul = mysqli_fetch_assoc($query)) :
+                $no = 1;
+                $data = mysqli_query($conn, "SELECT * FROM tbl_dosen");
+                while($row = mysqli_fetch_array($data)) :
                 ?>
                 <tr>
-                    <td class="td-kode"><?= htmlspecialchars($matkul['kodemk']); ?></td>
-                    <td class="td-nama"><?= htmlspecialchars($matkul['namamk']); ?></td>
-                    <td style="text-align:center;"><?= htmlspecialchars($matkul['sks']); ?></td>
+                    <td><?= $no++; ?></td>
+                    <td class="td-nid"><?= htmlspecialchars($row['nid']); ?></td>
+                    <td class="td-nama"><?= htmlspecialchars($row['namados']); ?></td>
                     <td class="td-aksi">
                         <div class="aksi-wrap">
                             <button class="btn-edit"
-                                onclick="bukaModalEdit('<?= htmlspecialchars($matkul['kodemk'], ENT_QUOTES) ?>', '<?= htmlspecialchars($matkul['namamk'], ENT_QUOTES) ?>', '<?= htmlspecialchars($matkul['sks'], ENT_QUOTES) ?>')">
+                                onclick="bukaModalEdit('<?= htmlspecialchars($row['nid'], ENT_QUOTES) ?>', '<?= htmlspecialchars($row['namados'], ENT_QUOTES) ?>')">
                                 Edit
                             </button>
-                            <a href="matkul.php?aksi=hapus&kodemk=<?= urlencode($matkul['kodemk']) ?>"
-                                onclick="return confirm('Yakin ingin hapus mata kuliah ini?')"
+                            <a href="dosen_action.php?aksi=hapus&nid=<?= urlencode($row['nid']) ?>"
+                                onclick="return confirm('Yakin ingin hapus dosen ini?')"
                                 class="btn-hapus">Hapus</a>
                         </div>
                     </td>
@@ -278,23 +236,20 @@ if (isset($_GET['aksi']) && $_GET['aksi'] === 'hapus') {
 <!-- MODAL TAMBAH -->
 <div class="modal-overlay" id="modalTambah">
     <div class="modal-box">
-        <h2>Tambah Mata Kuliah</h2>
-        <form action="" method="POST">
+        <h2>Tambah Dosen</h2>
+        <form action="dosen_action.php" method="POST">
+            <input type="hidden" name="aksi" value="tambah">
             <div class="form-group">
-                <label>Kode Matkul</label>
-                <input type="text" name="kodemk" required placeholder="Contoh: INF-103">
+                <label>NID</label>
+                <input type="text" name="nid" required placeholder="Contoh: D001">
             </div>
             <div class="form-group">
-                <label>Nama Mata Kuliah</label>
-                <input type="text" name="namamk" required placeholder="Contoh: Pemrograman Web">
-            </div>
-            <div class="form-group">
-                <label>SKS</label>
-                <input type="number" name="sks" required placeholder="Contoh: 3">
+                <label>Nama Dosen</label>
+                <input type="text" name="namados" required placeholder="Nama lengkap dosen">
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn-batal" onclick="tutupModal('modalTambah')">Batal</button>
-                <button type="submit" name="tambah_matkul" class="btn-simpan">Simpan</button>
+                <button type="submit" class="btn-simpan">Simpan</button>
             </div>
         </form>
     </div>
@@ -303,38 +258,34 @@ if (isset($_GET['aksi']) && $_GET['aksi'] === 'hapus') {
 <!-- MODAL EDIT -->
 <div class="modal-overlay" id="modalEdit">
     <div class="modal-box">
-        <h2>Edit Mata Kuliah</h2>
-        <form action="" method="POST">
-            <input type="hidden" name="kodemk_lama" id="editKodeLama">
+        <h2>Edit Dosen</h2>
+        <form action="dosen_action.php" method="POST">
+            <input type="hidden" name="aksi" value="edit">
+            <input type="hidden" name="nid_lama" id="editNidLama">
             <div class="form-group">
-                <label>Kode Matkul</label>
-                <input type="text" name="kodemk" id="editKode" required>
+                <label>NID</label>
+                <input type="text" name="nid" id="editNid" required>
             </div>
             <div class="form-group">
-                <label>Nama Mata Kuliah</label>
-                <input type="text" name="namamk" id="editNama" required>
-            </div>
-            <div class="form-group">
-                <label>SKS</label>
-                <input type="number" name="sks" id="editSks" required>
+                <label>Nama Dosen</label>
+                <input type="text" name="namados" id="editNama" required>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn-batal" onclick="tutupModal('modalEdit')">Batal</button>
-                <button type="submit" name="edit_matkul" class="btn-update">Update</button>
+                <button type="submit" class="btn-update">Update</button>
             </div>
         </form>
     </div>
 </div>
 
 <script>
-    function bukaModal(idModal) {
-        document.getElementById(idModal).classList.add('active');
+    function bukaModalTambah() {
+        document.getElementById('modalTambah').classList.add('active');
     }
-    function bukaModalEdit(kode, nama, sks) {
-        document.getElementById('editKodeLama').value = kode;
-        document.getElementById('editKode').value = kode;
+    function bukaModalEdit(nid, nama) {
+        document.getElementById('editNidLama').value = nid;
+        document.getElementById('editNid').value = nid;
         document.getElementById('editNama').value = nama;
-        document.getElementById('editSks').value = sks;
         document.getElementById('modalEdit').classList.add('active');
     }
     function tutupModal(idModal) {
