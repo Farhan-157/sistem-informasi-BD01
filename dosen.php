@@ -208,7 +208,10 @@ include 'includes/koneksi.php';
                 <?php
                 $no = 1;
                 $data = mysqli_query($conn, "SELECT * FROM tbl_dosen");
-                while($row = mysqli_fetch_array($data)) :
+                if (!$data) {
+                    echo '<tr><td colspan="4" style="text-align:center;color:#fca5a5;">Gagal memuat data: ' . htmlspecialchars(mysqli_error($conn)) . '</td></tr>';
+                }
+                while ($data && $row = mysqli_fetch_array($data)) :
                 ?>
                 <tr>
                     <td><?= $no++; ?></td>

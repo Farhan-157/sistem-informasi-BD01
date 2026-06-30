@@ -11,7 +11,11 @@ if(isset($_POST['cari'])){
          WHERE username='$username'"
     );
 
-    if(mysqli_num_rows($cek) > 0){
+    if(!$cek){
+
+        echo "Terjadi kesalahan sistem. Silakan coba lagi.";
+
+    } elseif(mysqli_num_rows($cek) > 0){
 
         header(
         "Location: reset_password.php?username=".$username

@@ -17,7 +17,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         AND password='$password'"
     );
 
-    if(mysqli_num_rows($query) > 0){
+    if(!$query){
+        $error = "Terjadi kesalahan sistem. Silakan coba lagi.";
+    } elseif(mysqli_num_rows($query) > 0){
 
         $_SESSION['login'] = true;
         $_SESSION['username'] = $username;

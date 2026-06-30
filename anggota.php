@@ -10,9 +10,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['tambah_anggota'])) {
     $no_hp   = mysqli_real_escape_string($conn, trim($_POST['no_hp']));
     $jabatan = mysqli_real_escape_string($conn, trim($_POST['jabatan']));
 
-    mysqli_query($conn, "INSERT INTO tbl_anggota (nim, nama, email, no_hp, jabatan) VALUES ('$nim', '$nama', '$email', '$no_hp', '$jabatan')");
-    $_SESSION['pesan'] = 'Data anggota berhasil ditambahkan!';
-    $_SESSION['tipe']  = 'sukses';
+    $result = mysqli_query($conn, "INSERT INTO tbl_anggota (nim, nama, email, no_hp, jabatan) VALUES ('$nim', '$nama', '$email', '$no_hp', '$jabatan')");
+    if ($result) {
+        $_SESSION['pesan'] = 'Data anggota berhasil ditambahkan!';
+        $_SESSION['tipe']  = 'sukses';
+    } else {
+        $_SESSION['pesan'] = 'Gagal menambahkan data anggota: ' . mysqli_error($conn);
+        $_SESSION['tipe']  = 'gagal';
+    }
     header("Location: anggota.php");
     exit;
 }
@@ -26,9 +31,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['edit_anggota'])) {
     $no_hp    = mysqli_real_escape_string($conn, trim($_POST['no_hp']));
     $jabatan  = mysqli_real_escape_string($conn, trim($_POST['jabatan']));
 
-    mysqli_query($conn, "UPDATE tbl_anggota SET nim='$nim', nama='$nama', email='$email', no_hp='$no_hp', jabatan='$jabatan' WHERE nim='$nim_lama'");
-    $_SESSION['pesan'] = 'Data anggota berhasil diupdate!';
-    $_SESSION['tipe']  = 'sukses';
+    $result = mysqli_query($conn, "UPDATE tbl_anggota SET nim='$nim', nama='$nama', email='$email', no_hp='$no_hp', jabatan='$jabatan' WHERE nim='$nim_lama'");
+    if ($result) {
+        $_SESSION['pesan'] = 'Data anggota berhasil diupdate!';
+        $_SESSION['tipe']  = 'sukses';
+    } else {
+        $_SESSION['pesan'] = 'Gagal update data anggota: ' . mysqli_error($conn);
+        $_SESSION['tipe']  = 'gagal';
+    }
     header("Location: anggota.php");
     exit;
 }
@@ -36,9 +46,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['edit_anggota'])) {
 // HAPUS
 if (isset($_GET['aksi']) && $_GET['aksi'] === 'hapus') {
     $nim = mysqli_real_escape_string($conn, trim($_GET['nim']));
-    mysqli_query($conn, "DELETE FROM tbl_anggota WHERE nim='$nim'");
-    $_SESSION['pesan'] = 'Data anggota berhasil dihapus!';
-    $_SESSION['tipe']  = 'sukses';
+    $result = mysqli_query($conn, "DELETE FROM tbl_anggota WHERE nim='$nim'");
+    if ($result) {
+        $_SESSION['pesan'] = 'Data anggota berhasil dihapus!';
+        $_SESSION['tipe']  = 'sukses';
+    } else {
+        $_SESSION['pesan'] = 'Gagal menghapus data anggota: ' . mysqli_error($conn);
+        $_SESSION['tipe']  = 'gagal';
+    }
     header("Location: anggota.php");
     exit;
 }
@@ -207,7 +222,10 @@ if (isset($_GET['aksi']) && $_GET['aksi'] === 'hapus') {
                 <?php
                 $no = 1;
                 $query = mysqli_query($conn, "SELECT * FROM tbl_anggota");
-                while ($data = mysqli_fetch_assoc($query)) :
+                if (!$query) {
+                    echo '<tr><td colspan="6" style="text-align:center;color:#fca5a5;">Gagal memuat data: ' . htmlspecialchars(mysqli_error($conn)) . '</td></tr>';
+                }
+                while ($query && $data = mysqli_fetch_assoc($query)) :
                     $jabatanClass = strtolower($data['jabatan']) === 'ketua'
                         ? 'bg-indigo-600 text-white'
                         : 'bg-indigo-100 text-indigo-700';

@@ -14,24 +14,32 @@ if(isset($_POST['register'])){
         WHERE username='$username'"
     );
 
-    if(mysqli_num_rows($cek) > 0){
+    if(!$cek){
+
+        $error = "Terjadi kesalahan sistem. Silakan coba lagi.";
+
+    } elseif(mysqli_num_rows($cek) > 0){
 
         $error = "Username sudah digunakan!";
 
     }else{
 
-        mysqli_query(
+        $insert = mysqli_query(
             $conn,
             "INSERT INTO tbl_users(username,password)
             VALUES('$username','$password')"
         );
 
-        echo "
-        <script>
-        alert('Registrasi berhasil');
-        window.location='login.php';
-        </script>
-        ";
+        if($insert){
+            echo "
+            <script>
+            alert('Registrasi berhasil');
+            window.location='login.php';
+            </script>
+            ";
+        } else {
+            $error = "Gagal mendaftarkan akun: " . mysqli_error($conn);
+        }
     }
 }
 ?>
