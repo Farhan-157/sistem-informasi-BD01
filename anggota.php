@@ -51,9 +51,8 @@ if (isset($_GET['aksi']) && $_GET['aksi'] === 'hapus') {
     <title>Data Anggota</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="css/shared.css">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
-
         body {
             min-height: 100vh;
             background-image: url('img/hero.jpg');
@@ -61,14 +60,11 @@ if (isset($_GET['aksi']) && $_GET['aksi'] === 'hapus') {
             background-position: center;
             background-attachment: fixed;
             position: relative;
+            padding: 0;
         }
 
         body::before {
-            content: '';
-            position: fixed;
-            inset: 0;
             background: rgba(15, 23, 42, 0.65);
-            z-index: 0;
         }
 
         .page-wrapper {
@@ -77,34 +73,7 @@ if (isset($_GET['aksi']) && $_GET['aksi'] === 'hapus') {
             padding: 40px;
         }
 
-        .container-custom {
-            max-width: 1200px;
-            margin: auto;
-        }
-
-        /* NAVBAR */
-        .navbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid rgba(255,255,255,0.15);
-        }
-        .logo { font-size: 28px; font-weight: 700; color: #ffffff; letter-spacing: 1px; }
-        .nav-links { display: flex; gap: 35px; }
-        .nav-links a { text-decoration: none; color: rgba(255,255,255,0.75); font-size: 15px; transition: 0.3s; }
-        .nav-links a:hover, .nav-links a.active { color: #ffffff; }
-        .btn-book {
-            background: #0f172a;
-            color: white;
-            padding: 12px 28px;
-            border-radius: 30px;
-            text-decoration: none;
-            font-size: 14px;
-            transition: 0.3s;
-        }
-        .btn-book:hover { background: #1e293b; }
+        .container-custom { max-width: 1200px; margin: auto; }
 
         /* TABLE */
         .table-card {
@@ -153,29 +122,9 @@ if (isset($_GET['aksi']) && $_GET['aksi'] === 'hapus') {
 <div class="page-wrapper">
 <div class="container-custom">
 
-    <!-- NAVBAR -->
-     <div class="navbar">
-        <div class="logo">BASIS DATA 01</div>
-         <div class="nav-links">
-            <a href="index.php">Beranda</a>
-            <a href="mahasiswa.php">Mahasiswa</a>
-            <a href="dosen.php">Dosen</a>
-            <a href="dopem.php">Dospem</a>
-            <a href="matkul.php">Mata Kuliah</a>
-            <a href="nilai.php">Nilai</a>
-            <a href="anggota.php">Anggota</a>
-        </div>
-        <a href="index.php" class="btn-book">Kembali ke Dashboard</a>
-    </div>
+    <?php include 'includes/navbar.php'; ?>
 
-    <!-- NOTIFIKASI -->
-    <?php if (isset($_SESSION['pesan'])): ?>
-        <div class="mb-4 px-4 py-3 rounded-lg text-sm font-medium
-            <?= $_SESSION['tipe'] === 'sukses' ? 'bg-green-100 text-green-700 border border-green-300' : 'bg-red-100 text-red-700 border border-red-300' ?>">
-            <?= $_SESSION['pesan']; ?>
-        </div>
-        <?php unset($_SESSION['pesan']); unset($_SESSION['tipe']); ?>
-    <?php endif; ?>
+    <?php include 'includes/notifikasi.php'; ?>
 
     <!-- HEADER -->
     <div class="flex justify-between items-center mb-6">
@@ -337,11 +286,8 @@ if (isset($_GET['aksi']) && $_GET['aksi'] === 'hapus') {
     </div>
 </div>
 
+<script src="js/modal.js"></script>
 <script>
-    function bukaModal(id) {
-        document.getElementById(id).classList.add('active');
-    }
-
     function bukaModalEdit(nim, nama, email, no_hp, jabatan) {
         document.getElementById('editNimLama').value = nim;
         document.getElementById('editNim').value     = nim;
@@ -349,18 +295,8 @@ if (isset($_GET['aksi']) && $_GET['aksi'] === 'hapus') {
         document.getElementById('editEmail').value   = email;
         document.getElementById('editNoHp').value    = no_hp;
         document.getElementById('editJabatan').value = jabatan;
-        document.getElementById('modalEdit').classList.add('active');
+        bukaModal('modalEdit');
     }
-
-    function tutupModal(id) {
-        document.getElementById(id).classList.remove('active');
-    }
-
-    document.querySelectorAll('.modal-overlay').forEach(function(overlay) {
-        overlay.addEventListener('click', function(e) {
-            if (e.target === overlay) overlay.classList.remove('active');
-        });
-    });
 </script>
 
 </body>

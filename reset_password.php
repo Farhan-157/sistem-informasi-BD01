@@ -1,5 +1,5 @@
 <?php
-include 'config.php';
+include 'includes/koneksi.php';
 
 $username = $_GET['username'];
 

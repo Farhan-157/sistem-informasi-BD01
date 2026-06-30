@@ -8,45 +8,13 @@ session_start();
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Website BD01 kelompok 7</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/shared.css">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
-
         body {
             background: url('img/hero.jpg') center/cover fixed;
             min-height: 100vh;
             padding: 40px;
         }
-        body::before {
-            content: '';
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.55);
-            z-index: 0;
-        }
-
-        .container-custom {
-            max-width: 1200px;
-            margin: auto;
-            position: relative;
-            z-index: 1;
-        }
-
-        .navbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-bottom: 20px;
-            border-bottom: 1px solid rgba(255,255,255,0.2);
-        }
-        .logo { font-size: 28px; font-weight: 700; color: white; }
-        .nav-links { display: flex; gap: 35px; }
-        .nav-links a { text-decoration: none; color: white; font-size: 15px; transition: 0.3s; }
-        .nav-links a:hover, .nav-links a.active { color: #2563eb; }
-        .btn-book {
-            background: #0f172a; color: white; padding: 12px 28px;
-            border-radius: 30px; text-decoration: none; font-size: 14px;
-        }
-        .btn-book:hover { background: #1e293b; }
 
         .hero-content {
             display: flex;
@@ -99,23 +67,7 @@ session_start();
 <body>
 <div class="container-custom">
 
-    <div class="navbar">
-        <div class="logo">BASIS DATA 01</div>
-        <div class="nav-links">
-            <a href="index.php" class="active">Beranda</a>
-            <a href="mahasiswa.php">Mahasiswa</a>
-            <a href="dosen.php">Dosen</a>
-            <a href="dopem.php">Dospem</a>
-            <a href="matkul.php">Mata Kuliah</a>
-            <a href="nilai.php">Nilai</a>
-            <a href="anggota.php">Anggota</a>
-        </div>
-        <?php if(!isset($_SESSION['login'])){ ?>
-        <a href="login.php" class="btn-book">Login ↗</a>
-        <?php } else { ?>
-        <a href="logout.php" class="btn-book">logout ↗</a>
-        <?php } ?>
-    </div>
+    <?php include 'includes/navbar.php'; ?>
 
     <!-- KONTEN -->
     <div class="hero-content">
@@ -139,8 +91,8 @@ session_start();
         <img src="img/farhan.jpeg">
     </div>
     <div class="socials">
-        <a href="https://www.instagram.com/f.hans15?igsh=YWJ5dWM0MGFwYzF0" target="_blank">Instagram ↗</a>
-        <a href="https://github.com/Farhan-157/sistem-informasi-BD01" target="_blank">GitHub ↗</a>
+        <a href="https://www.instagram.com/f.hans15?igsh=YWJ5dWM0MGFwYzF0" target="_blank">Instagram &#x2197;</a>
+        <a href="https://github.com/Farhan-157/sistem-informasi-BD01" target="_blank">GitHub &#x2197;</a>
     </div>
 </div>
 

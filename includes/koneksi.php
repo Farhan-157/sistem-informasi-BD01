@@ -7,7 +7,7 @@ $conn = mysqli_connect(
     "basisdata2026"
 );
 
-if(!$conn){
+if (!$conn) {
     die("Koneksi gagal : " . mysqli_connect_error());
 }
 
