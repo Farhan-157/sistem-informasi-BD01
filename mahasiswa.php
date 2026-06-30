@@ -225,7 +225,10 @@ include 'includes/koneksi.php';
                 <?php
                 $no = 1;
                 $query = mysqli_query($conn, "SELECT * FROM tbl_mhs");
-                while ($data = mysqli_fetch_assoc($query)) :
+                if (!$query) {
+                    echo '<tr><td colspan="5" style="text-align:center;color:#fca5a5;">Gagal memuat data: ' . htmlspecialchars(mysqli_error($conn)) . '</td></tr>';
+                }
+                while ($query && $data = mysqli_fetch_assoc($query)) :
                 ?>
                 <tr>
                     <td><?= $no++; ?></td>

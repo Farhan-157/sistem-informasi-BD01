@@ -293,7 +293,10 @@ if ($aksi === 'hapus') {
                 <?php
                 $no = 1;
                 $query = mysqli_query($conn, "SELECT * FROM tbl_dopem");
-                while ($data = mysqli_fetch_assoc($query)) :
+                if (!$query) {
+                    echo '<tr><td colspan="6" style="text-align:center;color:#fca5a5;">Gagal memuat data: ' . htmlspecialchars(mysqli_error($conn)) . '</td></tr>';
+                }
+                while ($query && $data = mysqli_fetch_assoc($query)) :
                 ?>
                 <tr>
                     <td><?= $no++; ?></td>

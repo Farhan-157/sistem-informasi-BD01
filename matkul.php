@@ -7,9 +7,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['tambah_matkul'])) {
     $kode = mysqli_real_escape_string($conn, trim($_POST['kodemk']));
     $nama = mysqli_real_escape_string($conn, trim($_POST['namamk']));
     $sks  = mysqli_real_escape_string($conn, trim($_POST['sks']));
-    mysqli_query($conn, "INSERT INTO tbl_matakuliah (kodemk, namamk, sks) VALUES ('$kode', '$nama', '$sks')");
-    $_SESSION['pesan'] = 'Mata kuliah berhasil ditambahkan!';
-    $_SESSION['tipe']  = 'sukses';
+    $result = mysqli_query($conn, "INSERT INTO tbl_matakuliah (kodemk, namamk, sks) VALUES ('$kode', '$nama', '$sks')");
+    if ($result) {
+        $_SESSION['pesan'] = 'Mata kuliah berhasil ditambahkan!';
+        $_SESSION['tipe']  = 'sukses';
+    } else {
+        $_SESSION['pesan'] = 'Gagal menambahkan mata kuliah: ' . mysqli_error($conn);
+        $_SESSION['tipe']  = 'gagal';
+    }
     header("Location: matkul.php");
     exit;
 }
@@ -20,9 +25,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['edit_matkul'])) {
     $kode      = mysqli_real_escape_string($conn, trim($_POST['kodemk']));
     $nama      = mysqli_real_escape_string($conn, trim($_POST['namamk']));
     $sks       = mysqli_real_escape_string($conn, trim($_POST['sks']));
-    mysqli_query($conn, "UPDATE tbl_matakuliah SET kodemk='$kode', namamk='$nama', sks='$sks' WHERE kodemk='$kode_lama'");
-    $_SESSION['pesan'] = 'Mata kuliah berhasil diupdate!';
-    $_SESSION['tipe']  = 'sukses';
+    $result = mysqli_query($conn, "UPDATE tbl_matakuliah SET kodemk='$kode', namamk='$nama', sks='$sks' WHERE kodemk='$kode_lama'");
+    if ($result) {
+        $_SESSION['pesan'] = 'Mata kuliah berhasil diupdate!';
+        $_SESSION['tipe']  = 'sukses';
+    } else {
+        $_SESSION['pesan'] = 'Gagal update mata kuliah: ' . mysqli_error($conn);
+        $_SESSION['tipe']  = 'gagal';
+    }
     header("Location: matkul.php");
     exit;
 }
@@ -30,9 +40,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['edit_matkul'])) {
 // Hapus data matkul
 if (isset($_GET['aksi']) && $_GET['aksi'] === 'hapus') {
     $kode = mysqli_real_escape_string($conn, trim($_GET['kodemk']));
-    mysqli_query($conn, "DELETE FROM tbl_matakuliah WHERE kodemk='$kode'");
-    $_SESSION['pesan'] = 'Mata kuliah berhasil dihapus!';
-    $_SESSION['tipe']  = 'sukses';
+    $result = mysqli_query($conn, "DELETE FROM tbl_matakuliah WHERE kodemk='$kode'");
+    if ($result) {
+        $_SESSION['pesan'] = 'Mata kuliah berhasil dihapus!';
+        $_SESSION['tipe']  = 'sukses';
+    } else {
+        $_SESSION['pesan'] = 'Gagal menghapus mata kuliah: ' . mysqli_error($conn);
+        $_SESSION['tipe']  = 'gagal';
+    }
     header("Location: matkul.php");
     exit;
 }
@@ -250,7 +265,10 @@ if (isset($_GET['aksi']) && $_GET['aksi'] === 'hapus') {
             <tbody>
                 <?php
                 $query = mysqli_query($conn, "SELECT * FROM tbl_matakuliah");
-                while ($matkul = mysqli_fetch_assoc($query)) :
+                if (!$query) {
+                    echo '<tr><td colspan="4" style="text-align:center;color:#fca5a5;">Gagal memuat data: ' . htmlspecialchars(mysqli_error($conn)) . '</td></tr>';
+                }
+                while ($query && $matkul = mysqli_fetch_assoc($query)) :
                 ?>
                 <tr>
                     <td class="td-kode"><?= htmlspecialchars($matkul['kodemk']); ?></td>

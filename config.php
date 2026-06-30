@@ -8,6 +8,6 @@ $conn = mysqli_connect(
 );
 
 if(!$conn){
-    die("Koneksi database gagal");
+    die("Koneksi database gagal: " . mysqli_connect_error());
 }
 ?>
