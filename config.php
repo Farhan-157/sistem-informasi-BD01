@@ -1,10 +1,10 @@
 <?php
 
 $conn = mysqli_connect(
-    "localhost",
-    "root",
-    "",
-    "basisdata2026"
+    getenv('DB_HOST') ?: "localhost",
+    getenv('DB_USER') ?: "root",
+    getenv('DB_PASS') ?: "",
+    getenv('DB_NAME') ?: "basisdata2026"
 );
 
 if(!$conn){

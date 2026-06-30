@@ -7,26 +7,28 @@ include 'includes/koneksi.php';
 // =====================
 $aksi = $_POST['aksi'] ?? $_GET['aksi'] ?? '';
 
+if ($aksi !== '' && !isset($_SESSION['login'])) {
+    header('Location: login.php');
+    exit;
+}
+
 // TAMBAH
 if ($aksi === 'tambah') {
-    $nim       = trim($_POST['nim']);
-    $namamhs   = trim($_POST['namamhs']);
-    $nid       = trim($_POST['nid']);
-    $namadosen = trim($_POST['namadosen']);
+    $nim       = trim($_POST['nim'] ?? '');
+    $namamhs   = trim($_POST['namamhs'] ?? '');
+    $nid       = trim($_POST['nid'] ?? '');
+    $namadosen = trim($_POST['namadosen'] ?? '');
 
     if ($nim && $namamhs && $nid && $namadosen) {
-        $nim       = mysqli_real_escape_string($conn, $nim);
-        $namamhs   = mysqli_real_escape_string($conn, $namamhs);
-        $nid       = mysqli_real_escape_string($conn, $nid);
-        $namadosen = mysqli_real_escape_string($conn, $namadosen);
-
-        $query = mysqli_query($conn,
-            "INSERT INTO tbl_dopem (nim, namamhs, nid, namadosen)
-             VALUES ('$nim', '$namamhs', '$nid', '$namadosen')"
+        $stmt = mysqli_prepare($conn,
+            "INSERT INTO tbl_dopem (nim, namamhs, nid, namadosen) VALUES (?, ?, ?, ?)"
         );
+        mysqli_stmt_bind_param($stmt, "ssss", $nim, $namamhs, $nid, $namadosen);
+        $ok = mysqli_stmt_execute($stmt);
+        mysqli_stmt_close($stmt);
 
-        $_SESSION['pesan'] = $query ? 'Data dosen pembimbing berhasil ditambahkan.' : 'Gagal menambahkan data: ' . mysqli_error($conn);
-        $_SESSION['tipe']  = $query ? 'sukses' : 'gagal';
+        $_SESSION['pesan'] = $ok ? 'Data dosen pembimbing berhasil ditambahkan.' : 'Gagal menambahkan data.';
+        $_SESSION['tipe']  = $ok ? 'sukses' : 'gagal';
     } else {
         $_SESSION['pesan'] = 'Semua field wajib diisi.';
         $_SESSION['tipe']  = 'gagal';
@@ -37,22 +39,23 @@ if ($aksi === 'tambah') {
 
 // EDIT
 if ($aksi === 'edit') {
-    $nim_lama  = mysqli_real_escape_string($conn, trim($_POST['nim_lama']));
-    $nid_lama  = mysqli_real_escape_string($conn, trim($_POST['nid_lama']));
-    $nim       = mysqli_real_escape_string($conn, trim($_POST['nim']));
-    $namamhs   = mysqli_real_escape_string($conn, trim($_POST['namamhs']));
-    $nid       = mysqli_real_escape_string($conn, trim($_POST['nid']));
-    $namadosen = mysqli_real_escape_string($conn, trim($_POST['namadosen']));
+    $nim_lama  = trim($_POST['nim_lama'] ?? '');
+    $nid_lama  = trim($_POST['nid_lama'] ?? '');
+    $nim       = trim($_POST['nim'] ?? '');
+    $namamhs   = trim($_POST['namamhs'] ?? '');
+    $nid       = trim($_POST['nid'] ?? '');
+    $namadosen = trim($_POST['namadosen'] ?? '');
 
     if ($nim && $namamhs && $nid && $namadosen) {
-        $query = mysqli_query($conn,
-            "UPDATE tbl_dopem
-             SET nim='$nim', namamhs='$namamhs', nid='$nid', namadosen='$namadosen'
-             WHERE nim='$nim_lama' AND nid='$nid_lama'"
+        $stmt = mysqli_prepare($conn,
+            "UPDATE tbl_dopem SET nim=?, namamhs=?, nid=?, namadosen=? WHERE nim=? AND nid=?"
         );
+        mysqli_stmt_bind_param($stmt, "ssssss", $nim, $namamhs, $nid, $namadosen, $nim_lama, $nid_lama);
+        $ok = mysqli_stmt_execute($stmt);
+        mysqli_stmt_close($stmt);
 
-        $_SESSION['pesan'] = $query ? 'Data dosen pembimbing berhasil diperbarui.' : 'Gagal memperbarui data: ' . mysqli_error($conn);
-        $_SESSION['tipe']  = $query ? 'sukses' : 'gagal';
+        $_SESSION['pesan'] = $ok ? 'Data dosen pembimbing berhasil diperbarui.' : 'Gagal memperbarui data.';
+        $_SESSION['tipe']  = $ok ? 'sukses' : 'gagal';
     } else {
         $_SESSION['pesan'] = 'Semua field wajib diisi.';
         $_SESSION['tipe']  = 'gagal';
@@ -63,13 +66,17 @@ if ($aksi === 'edit') {
 
 // HAPUS
 if ($aksi === 'hapus') {
-    $nim = mysqli_real_escape_string($conn, $_GET['nim'] ?? '');
-    $nid = mysqli_real_escape_string($conn, $_GET['nid'] ?? '');
+    $nim = $_GET['nim'] ?? '';
+    $nid = $_GET['nid'] ?? '';
 
     if ($nim && $nid) {
-        $query = mysqli_query($conn, "DELETE FROM tbl_dopem WHERE nim='$nim' AND nid='$nid'");
-        $_SESSION['pesan'] = $query ? 'Data dosen pembimbing berhasil dihapus.' : 'Gagal menghapus data: ' . mysqli_error($conn);
-        $_SESSION['tipe']  = $query ? 'sukses' : 'gagal';
+        $stmt = mysqli_prepare($conn, "DELETE FROM tbl_dopem WHERE nim=? AND nid=?");
+        mysqli_stmt_bind_param($stmt, "ss", $nim, $nid);
+        $ok = mysqli_stmt_execute($stmt);
+        mysqli_stmt_close($stmt);
+
+        $_SESSION['pesan'] = $ok ? 'Data dosen pembimbing berhasil dihapus.' : 'Gagal menghapus data.';
+        $_SESSION['tipe']  = $ok ? 'sukses' : 'gagal';
     } else {
         $_SESSION['pesan'] = 'Data tidak ditemukan.';
         $_SESSION['tipe']  = 'gagal';
@@ -262,7 +269,7 @@ if ($aksi === 'hapus') {
     <!-- NOTIFIKASI -->
     <?php if (isset($_SESSION['pesan'])): ?>
         <div class="<?= $_SESSION['tipe'] === 'sukses' ? 'notif-sukses' : 'notif-gagal' ?>">
-            <?= $_SESSION['pesan']; ?>
+            <?= htmlspecialchars($_SESSION['pesan']); ?>
         </div>
         <?php unset($_SESSION['pesan']); unset($_SESSION['tipe']); ?>
     <?php endif; ?>

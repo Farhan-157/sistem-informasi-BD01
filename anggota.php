@@ -4,13 +4,17 @@ include 'includes/koneksi.php';
 
 // TAMBAH
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['tambah_anggota'])) {
-    $nim     = mysqli_real_escape_string($conn, trim($_POST['nim']));
-    $nama    = mysqli_real_escape_string($conn, trim($_POST['nama']));
-    $email   = mysqli_real_escape_string($conn, trim($_POST['email']));
-    $no_hp   = mysqli_real_escape_string($conn, trim($_POST['no_hp']));
-    $jabatan = mysqli_real_escape_string($conn, trim($_POST['jabatan']));
+    if(!isset($_SESSION['login'])){ header('Location: login.php'); exit; }
+    $nim     = trim($_POST['nim'] ?? '');
+    $nama    = trim($_POST['nama'] ?? '');
+    $email   = trim($_POST['email'] ?? '');
+    $no_hp   = trim($_POST['no_hp'] ?? '');
+    $jabatan = trim($_POST['jabatan'] ?? '');
 
-    mysqli_query($conn, "INSERT INTO tbl_anggota (nim, nama, email, no_hp, jabatan) VALUES ('$nim', '$nama', '$email', '$no_hp', '$jabatan')");
+    $stmt = mysqli_prepare($conn, "INSERT INTO tbl_anggota (nim, nama, email, no_hp, jabatan) VALUES (?, ?, ?, ?, ?)");
+    mysqli_stmt_bind_param($stmt, "sssss", $nim, $nama, $email, $no_hp, $jabatan);
+    mysqli_stmt_execute($stmt);
+    mysqli_stmt_close($stmt);
     $_SESSION['pesan'] = 'Data anggota berhasil ditambahkan!';
     $_SESSION['tipe']  = 'sukses';
     header("Location: anggota.php");
@@ -19,14 +23,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['tambah_anggota'])) {
 
 // EDIT
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['edit_anggota'])) {
-    $nim_lama = mysqli_real_escape_string($conn, trim($_POST['nim_lama']));
-    $nim      = mysqli_real_escape_string($conn, trim($_POST['nim']));
-    $nama     = mysqli_real_escape_string($conn, trim($_POST['nama']));
-    $email    = mysqli_real_escape_string($conn, trim($_POST['email']));
-    $no_hp    = mysqli_real_escape_string($conn, trim($_POST['no_hp']));
-    $jabatan  = mysqli_real_escape_string($conn, trim($_POST['jabatan']));
+    if(!isset($_SESSION['login'])){ header('Location: login.php'); exit; }
+    $nim_lama = trim($_POST['nim_lama'] ?? '');
+    $nim      = trim($_POST['nim'] ?? '');
+    $nama     = trim($_POST['nama'] ?? '');
+    $email    = trim($_POST['email'] ?? '');
+    $no_hp    = trim($_POST['no_hp'] ?? '');
+    $jabatan  = trim($_POST['jabatan'] ?? '');
 
-    mysqli_query($conn, "UPDATE tbl_anggota SET nim='$nim', nama='$nama', email='$email', no_hp='$no_hp', jabatan='$jabatan' WHERE nim='$nim_lama'");
+    $stmt = mysqli_prepare($conn, "UPDATE tbl_anggota SET nim=?, nama=?, email=?, no_hp=?, jabatan=? WHERE nim=?");
+    mysqli_stmt_bind_param($stmt, "ssssss", $nim, $nama, $email, $no_hp, $jabatan, $nim_lama);
+    mysqli_stmt_execute($stmt);
+    mysqli_stmt_close($stmt);
     $_SESSION['pesan'] = 'Data anggota berhasil diupdate!';
     $_SESSION['tipe']  = 'sukses';
     header("Location: anggota.php");
@@ -35,8 +43,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['edit_anggota'])) {
 
 // HAPUS
 if (isset($_GET['aksi']) && $_GET['aksi'] === 'hapus') {
-    $nim = mysqli_real_escape_string($conn, trim($_GET['nim']));
-    mysqli_query($conn, "DELETE FROM tbl_anggota WHERE nim='$nim'");
+    if(!isset($_SESSION['login'])){ header('Location: login.php'); exit; }
+    $nim = trim($_GET['nim'] ?? '');
+    $stmt = mysqli_prepare($conn, "DELETE FROM tbl_anggota WHERE nim=?");
+    mysqli_stmt_bind_param($stmt, "s", $nim);
+    mysqli_stmt_execute($stmt);
+    mysqli_stmt_close($stmt);
     $_SESSION['pesan'] = 'Data anggota berhasil dihapus!';
     $_SESSION['tipe']  = 'sukses';
     header("Location: anggota.php");
@@ -172,7 +184,7 @@ if (isset($_GET['aksi']) && $_GET['aksi'] === 'hapus') {
     <?php if (isset($_SESSION['pesan'])): ?>
         <div class="mb-4 px-4 py-3 rounded-lg text-sm font-medium
             <?= $_SESSION['tipe'] === 'sukses' ? 'bg-green-100 text-green-700 border border-green-300' : 'bg-red-100 text-red-700 border border-red-300' ?>">
-            <?= $_SESSION['pesan']; ?>
+            <?= htmlspecialchars($_SESSION['pesan']); ?>
         </div>
         <?php unset($_SESSION['pesan']); unset($_SESSION['tipe']); ?>
     <?php endif; ?>

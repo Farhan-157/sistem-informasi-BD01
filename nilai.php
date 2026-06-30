@@ -4,15 +4,19 @@ include 'includes/koneksi.php';
 
 // TAMBAH
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['tambah_nilai'])) {
-    $nim    = mysqli_real_escape_string($conn, trim($_POST['nim']));
-    $tugas  = mysqli_real_escape_string($conn, trim($_POST['tugas']));
-    $uts    = mysqli_real_escape_string($conn, trim($_POST['uts']));
-    $uas    = mysqli_real_escape_string($conn, trim($_POST['uas']));
-    $akhir  = mysqli_real_escape_string($conn, trim($_POST['akhir']));
-    $hm     = mysqli_real_escape_string($conn, trim($_POST['hm']));
-    $status = mysqli_real_escape_string($conn, trim($_POST['status']));
+    if(!isset($_SESSION['login'])){ header('Location: login.php'); exit; }
+    $nim    = trim($_POST['nim'] ?? '');
+    $tugas  = trim($_POST['tugas'] ?? '');
+    $uts    = trim($_POST['uts'] ?? '');
+    $uas    = trim($_POST['uas'] ?? '');
+    $akhir  = trim($_POST['akhir'] ?? '');
+    $hm     = trim($_POST['hm'] ?? '');
+    $status = trim($_POST['status'] ?? '');
 
-    mysqli_query($conn, "INSERT INTO tbl_nilai (nim, tugas, uts, uas, akhir, hm, status) VALUES ('$nim', '$tugas', '$uts', '$uas', '$akhir', '$hm', '$status')");
+    $stmt = mysqli_prepare($conn, "INSERT INTO tbl_nilai (nim, tugas, uts, uas, akhir, hm, status) VALUES (?, ?, ?, ?, ?, ?, ?)");
+    mysqli_stmt_bind_param($stmt, "sssssss", $nim, $tugas, $uts, $uas, $akhir, $hm, $status);
+    mysqli_stmt_execute($stmt);
+    mysqli_stmt_close($stmt);
     $_SESSION['pesan'] = 'Nilai berhasil ditambahkan!';
     $_SESSION['tipe']  = 'sukses';
     header("Location: nilai.php");
@@ -21,16 +25,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['tambah_nilai'])) {
 
 // EDIT
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['edit_nilai'])) {
-    $nim_lama = mysqli_real_escape_string($conn, trim($_POST['nim_lama']));
-    $nim      = mysqli_real_escape_string($conn, trim($_POST['nim']));
-    $tugas    = mysqli_real_escape_string($conn, trim($_POST['tugas']));
-    $uts      = mysqli_real_escape_string($conn, trim($_POST['uts']));
-    $uas      = mysqli_real_escape_string($conn, trim($_POST['uas']));
-    $akhir    = mysqli_real_escape_string($conn, trim($_POST['akhir']));
-    $hm       = mysqli_real_escape_string($conn, trim($_POST['hm']));
-    $status   = mysqli_real_escape_string($conn, trim($_POST['status']));
+    if(!isset($_SESSION['login'])){ header('Location: login.php'); exit; }
+    $nim_lama = trim($_POST['nim_lama'] ?? '');
+    $nim      = trim($_POST['nim'] ?? '');
+    $tugas    = trim($_POST['tugas'] ?? '');
+    $uts      = trim($_POST['uts'] ?? '');
+    $uas      = trim($_POST['uas'] ?? '');
+    $akhir    = trim($_POST['akhir'] ?? '');
+    $hm       = trim($_POST['hm'] ?? '');
+    $status   = trim($_POST['status'] ?? '');
 
-    mysqli_query($conn, "UPDATE tbl_nilai SET nim='$nim', tugas='$tugas', uts='$uts', uas='$uas', akhir='$akhir', hm='$hm', status='$status' WHERE nim='$nim_lama'");
+    $stmt = mysqli_prepare($conn, "UPDATE tbl_nilai SET nim=?, tugas=?, uts=?, uas=?, akhir=?, hm=?, status=? WHERE nim=?");
+    mysqli_stmt_bind_param($stmt, "ssssssss", $nim, $tugas, $uts, $uas, $akhir, $hm, $status, $nim_lama);
+    mysqli_stmt_execute($stmt);
+    mysqli_stmt_close($stmt);
     $_SESSION['pesan'] = 'Nilai berhasil diupdate!';
     $_SESSION['tipe']  = 'sukses';
     header("Location: nilai.php");
@@ -39,8 +47,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['edit_nilai'])) {
 
 // HAPUS
 if (isset($_GET['aksi']) && $_GET['aksi'] === 'hapus') {
-    $nim = mysqli_real_escape_string($conn, trim($_GET['nim']));
-    mysqli_query($conn, "DELETE FROM tbl_nilai WHERE nim='$nim'");
+    if(!isset($_SESSION['login'])){ header('Location: login.php'); exit; }
+    $nim = trim($_GET['nim'] ?? '');
+    $stmt = mysqli_prepare($conn, "DELETE FROM tbl_nilai WHERE nim=?");
+    mysqli_stmt_bind_param($stmt, "s", $nim);
+    mysqli_stmt_execute($stmt);
+    mysqli_stmt_close($stmt);
     $_SESSION['pesan'] = 'Nilai berhasil dihapus!';
     $_SESSION['tipe']  = 'sukses';
     header("Location: nilai.php");
@@ -159,7 +171,7 @@ if (isset($_GET['aksi']) && $_GET['aksi'] === 'hapus') {
     <?php if (isset($_SESSION['pesan'])): ?>
         <div class="mb-4 px-4 py-3 rounded-lg text-sm font-medium
             <?= $_SESSION['tipe'] === 'sukses' ? 'bg-green-100 text-green-700 border border-green-300' : 'bg-red-100 text-red-700 border border-red-300' ?>">
-            <?= $_SESSION['pesan']; ?>
+            <?= htmlspecialchars($_SESSION['pesan']); ?>
         </div>
         <?php unset($_SESSION['pesan']); unset($_SESSION['tipe']); ?>
     <?php endif; ?>

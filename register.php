@@ -8,23 +8,28 @@ if(isset($_POST['register'])){
     $username = $_POST['username'];
     $password = $_POST['password'];
 
-    $cek = mysqli_query(
+    $stmt = mysqli_prepare(
         $conn,
-        "SELECT * FROM tbl_users
-        WHERE username='$username'"
+        "SELECT * FROM tbl_users WHERE username = ?"
     );
+    mysqli_stmt_bind_param($stmt, "s", $username);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
 
-    if(mysqli_num_rows($cek) > 0){
+    if(mysqli_num_rows($result) > 0){
 
         $error = "Username sudah digunakan!";
 
     }else{
 
-        mysqli_query(
+        $hashed = password_hash($password, PASSWORD_DEFAULT);
+        $stmt2 = mysqli_prepare(
             $conn,
-            "INSERT INTO tbl_users(username,password)
-            VALUES('$username','$password')"
+            "INSERT INTO tbl_users(username,password) VALUES(?, ?)"
         );
+        mysqli_stmt_bind_param($stmt2, "ss", $username, $hashed);
+        mysqli_stmt_execute($stmt2);
+        mysqli_stmt_close($stmt2);
 
         echo "
         <script>
@@ -33,6 +38,7 @@ if(isset($_POST['register'])){
         </script>
         ";
     }
+    mysqli_stmt_close($stmt);
 }
 ?>
 
