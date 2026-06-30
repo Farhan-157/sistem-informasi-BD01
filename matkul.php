@@ -4,10 +4,14 @@ include 'includes/koneksi.php';
 
 // Tambah data matkul
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['tambah_matkul'])) {
-    $kode = mysqli_real_escape_string($conn, trim($_POST['kodemk']));
-    $nama = mysqli_real_escape_string($conn, trim($_POST['namamk']));
-    $sks  = mysqli_real_escape_string($conn, trim($_POST['sks']));
-    mysqli_query($conn, "INSERT INTO tbl_matakuliah (kodemk, namamk, sks) VALUES ('$kode', '$nama', '$sks')");
+    if(!isset($_SESSION['login'])){ header('Location: login.php'); exit; }
+    $kode = trim($_POST['kodemk'] ?? '');
+    $nama = trim($_POST['namamk'] ?? '');
+    $sks  = trim($_POST['sks'] ?? '');
+    $stmt = mysqli_prepare($conn, "INSERT INTO tbl_matakuliah (kodemk, namamk, sks) VALUES (?, ?, ?)");
+    mysqli_stmt_bind_param($stmt, "sss", $kode, $nama, $sks);
+    mysqli_stmt_execute($stmt);
+    mysqli_stmt_close($stmt);
     $_SESSION['pesan'] = 'Mata kuliah berhasil ditambahkan!';
     $_SESSION['tipe']  = 'sukses';
     header("Location: matkul.php");
@@ -16,11 +20,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['tambah_matkul'])) {
 
 // Edit data matkul
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['edit_matkul'])) {
-    $kode_lama = mysqli_real_escape_string($conn, trim($_POST['kodemk_lama']));
-    $kode      = mysqli_real_escape_string($conn, trim($_POST['kodemk']));
-    $nama      = mysqli_real_escape_string($conn, trim($_POST['namamk']));
-    $sks       = mysqli_real_escape_string($conn, trim($_POST['sks']));
-    mysqli_query($conn, "UPDATE tbl_matakuliah SET kodemk='$kode', namamk='$nama', sks='$sks' WHERE kodemk='$kode_lama'");
+    if(!isset($_SESSION['login'])){ header('Location: login.php'); exit; }
+    $kode_lama = trim($_POST['kodemk_lama'] ?? '');
+    $kode      = trim($_POST['kodemk'] ?? '');
+    $nama      = trim($_POST['namamk'] ?? '');
+    $sks       = trim($_POST['sks'] ?? '');
+    $stmt = mysqli_prepare($conn, "UPDATE tbl_matakuliah SET kodemk=?, namamk=?, sks=? WHERE kodemk=?");
+    mysqli_stmt_bind_param($stmt, "ssss", $kode, $nama, $sks, $kode_lama);
+    mysqli_stmt_execute($stmt);
+    mysqli_stmt_close($stmt);
     $_SESSION['pesan'] = 'Mata kuliah berhasil diupdate!';
     $_SESSION['tipe']  = 'sukses';
     header("Location: matkul.php");
@@ -29,8 +37,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['edit_matkul'])) {
 
 // Hapus data matkul
 if (isset($_GET['aksi']) && $_GET['aksi'] === 'hapus') {
-    $kode = mysqli_real_escape_string($conn, trim($_GET['kodemk']));
-    mysqli_query($conn, "DELETE FROM tbl_matakuliah WHERE kodemk='$kode'");
+    if(!isset($_SESSION['login'])){ header('Location: login.php'); exit; }
+    $kode = trim($_GET['kodemk'] ?? '');
+    $stmt = mysqli_prepare($conn, "DELETE FROM tbl_matakuliah WHERE kodemk=?");
+    mysqli_stmt_bind_param($stmt, "s", $kode);
+    mysqli_stmt_execute($stmt);
+    mysqli_stmt_close($stmt);
     $_SESSION['pesan'] = 'Mata kuliah berhasil dihapus!';
     $_SESSION['tipe']  = 'sukses';
     header("Location: matkul.php");
@@ -224,7 +236,7 @@ if (isset($_GET['aksi']) && $_GET['aksi'] === 'hapus') {
     </div>
     <?php if (isset($_SESSION['pesan'])): ?>
         <div class="<?= $_SESSION['tipe'] === 'sukses' ? 'notif-sukses' : 'notif-gagal' ?>">
-            <?= $_SESSION['pesan']; ?>
+            <?= htmlspecialchars($_SESSION['pesan']); ?>
         </div>
         <?php unset($_SESSION['pesan']); unset($_SESSION['tipe']); ?>
     <?php endif; ?>

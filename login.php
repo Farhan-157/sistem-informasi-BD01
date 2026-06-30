@@ -10,25 +10,32 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $username = $_POST['username'];
     $password = $_POST['password'];
 
-    $query = mysqli_query(
+    $stmt = mysqli_prepare(
         $conn,
-        "SELECT * FROM tbl_users
-        WHERE username='$username'
-        AND password='$password'"
+        "SELECT * FROM tbl_users WHERE username = ?"
     );
+    mysqli_stmt_bind_param($stmt, "s", $username);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
 
-    if(mysqli_num_rows($query) > 0){
+    if($row = mysqli_fetch_assoc($result)){
 
-        $_SESSION['login'] = true;
-        $_SESSION['username'] = $username;
+        if(password_verify($password, $row['password'])){
+            session_regenerate_id(true);
+            $_SESSION['login'] = true;
+            $_SESSION['username'] = $username;
 
-        header("Location: index.php");
-        exit();
+            header("Location: index.php");
+            exit();
+        } else {
+            $error = "Username atau Password salah!";
+        }
 
     }else{
 
         $error = "Username atau Password salah!";
     }
+    mysqli_stmt_close($stmt);
 }
 ?>
 

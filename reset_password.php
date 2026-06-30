@@ -1,18 +1,30 @@
 <?php
+session_start();
 include 'config.php';
 
-$username = $_GET['username'];
+$token = $_GET['token'] ?? '';
+
+if(empty($token) || !isset($_SESSION['reset_token']) || !hash_equals($_SESSION['reset_token'], $token)){
+    die("Link reset tidak valid atau sudah kedaluwarsa.");
+}
+
+$username = $_SESSION['reset_username'];
 
 if(isset($_POST['simpan'])){
 
     $password = $_POST['password'];
+    $hashed = password_hash($password, PASSWORD_DEFAULT);
 
-    mysqli_query(
+    $stmt = mysqli_prepare(
         $conn,
-        "UPDATE tbl_users
-         SET password='$password'
-         WHERE username='$username'"
+        "UPDATE tbl_users SET password = ? WHERE username = ?"
     );
+    mysqli_stmt_bind_param($stmt, "ss", $hashed, $username);
+    mysqli_stmt_execute($stmt);
+    mysqli_stmt_close($stmt);
+
+    unset($_SESSION['reset_token']);
+    unset($_SESSION['reset_username']);
 
     echo "
     <script>

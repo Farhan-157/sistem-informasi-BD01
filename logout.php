@@ -1,6 +1,20 @@
 <?php
 session_start();
 
+if(isset($_GET['confirm']) && $_GET['confirm'] === '1'){
+    $_SESSION = [];
+    if(ini_get("session.use_cookies")){
+        $params = session_get_cookie_params();
+        setcookie(session_name(), '', time() - 42000,
+            $params["path"], $params["domain"],
+            $params["secure"], $params["httponly"]
+        );
+    }
+    session_destroy();
+    header("Location: login.php");
+    exit();
+}
+
 if(!isset($_SESSION['login'])){
     header("Location: index.php");
     exit();
@@ -158,7 +172,7 @@ h2{
     <h1>Sampai jumpa!</h1>
 
     <h2>
-        <?php echo $_SESSION['username']; ?>
+        <?php echo htmlspecialchars($_SESSION['username']); ?>
     </h2>
 
     <button class="logout-btn" onclick="openPopup()">
@@ -183,7 +197,7 @@ h2{
                 Batal
             </button>
 
-            <a href="login.php" class="confirm-btn">
+            <a href="logout.php?confirm=1" class="confirm-btn">
                 Ya, Logout
             </a>
 
