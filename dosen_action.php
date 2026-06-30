@@ -1,6 +1,7 @@
 <?php
 session_start();
 include 'includes/koneksi.php';
+include 'includes/flash.php';
 
 $aksi = $_REQUEST['aksi'] ?? '';
 
@@ -9,17 +10,14 @@ if ($aksi === 'tambah') {
     $namados = mysqli_real_escape_string($conn, trim($_POST['namados']));
 
     if ($nid === '' || $namados === '') {
-        $_SESSION['pesan'] = 'NID dan Nama Dosen tidak boleh kosong!';
-        $_SESSION['tipe']  = 'gagal';
+        set_flash('NID dan Nama Dosen tidak boleh kosong!', 'gagal');
     } else {
         $query = mysqli_query($conn, "INSERT INTO tbl_dosen (nid, namados) VALUES ('$nid', '$namados')");
 
         if ($query) {
-            $_SESSION['pesan'] = 'Data dosen berhasil ditambahkan!';
-            $_SESSION['tipe']  = 'sukses';
+            set_flash('Data dosen berhasil ditambahkan!');
         } else {
-            $_SESSION['pesan'] = 'Gagal menambahkan data: ' . mysqli_error($conn);
-            $_SESSION['tipe']  = 'gagal';
+            set_flash('Gagal menambahkan data: ' . mysqli_error($conn), 'gagal');
         }
     }
 }
@@ -30,17 +28,14 @@ elseif ($aksi === 'edit') {
     $namados  = mysqli_real_escape_string($conn, trim($_POST['namados']));
 
     if ($nid === '' || $namados === '') {
-        $_SESSION['pesan'] = 'NID dan Nama Dosen tidak boleh kosong!';
-        $_SESSION['tipe']  = 'gagal';
+        set_flash('NID dan Nama Dosen tidak boleh kosong!', 'gagal');
     } else {
         $query = mysqli_query($conn, "UPDATE tbl_dosen SET nid='$nid', namados='$namados' WHERE nid='$nid_lama'");
 
         if ($query) {
-            $_SESSION['pesan'] = 'Data dosen berhasil diupdate!';
-            $_SESSION['tipe']  = 'sukses';
+            set_flash('Data dosen berhasil diupdate!');
         } else {
-            $_SESSION['pesan'] = 'Gagal update data: ' . mysqli_error($conn);
-            $_SESSION['tipe']  = 'gagal';
+            set_flash('Gagal update data: ' . mysqli_error($conn), 'gagal');
         }
     }
 }
@@ -51,11 +46,9 @@ elseif ($aksi === 'hapus') {
     $query = mysqli_query($conn, "DELETE FROM tbl_dosen WHERE nid='$nid'");
 
     if ($query) {
-        $_SESSION['pesan'] = 'Data dosen berhasil dihapus!';
-        $_SESSION['tipe']  = 'sukses';
+        set_flash('Data dosen berhasil dihapus!');
     } else {
-        $_SESSION['pesan'] = 'Gagal hapus data: ' . mysqli_error($conn);
-        $_SESSION['tipe']  = 'gagal';
+        set_flash('Gagal hapus data: ' . mysqli_error($conn), 'gagal');
     }
 }
 

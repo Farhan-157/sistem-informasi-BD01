@@ -1,6 +1,7 @@
 <?php
 session_start();
 include 'includes/koneksi.php';
+include 'includes/flash.php';
 
 $aksi = $_REQUEST['aksi'] ?? '';
 
@@ -13,17 +14,14 @@ if ($aksi === 'tambah') {
     $handphone = mysqli_real_escape_string($conn, trim($_POST['handphone']));
 
     if ($nim === '' || $namamhs === '') {
-        $_SESSION['pesan'] = 'NIM dan Nama tidak boleh kosong!';
-        $_SESSION['tipe']  = 'gagal';
+        set_flash('NIM dan Nama tidak boleh kosong!', 'gagal');
     } else {
         $query = mysqli_query($conn, "INSERT INTO tbl_mhs (nim, namamhs, handphone) VALUES ('$nim', '$namamhs', '$handphone')");
 
         if ($query) {
-            $_SESSION['pesan'] = 'Data mahasiswa berhasil ditambahkan!';
-            $_SESSION['tipe']  = 'sukses';
+            set_flash('Data mahasiswa berhasil ditambahkan!');
         } else {
-            $_SESSION['pesan'] = 'Gagal menambahkan data: ' . mysqli_error($conn);
-            $_SESSION['tipe']  = 'gagal';
+            set_flash('Gagal menambahkan data: ' . mysqli_error($conn), 'gagal');
         }
     }
 }
@@ -38,17 +36,14 @@ elseif ($aksi === 'edit') {
     $handphone = mysqli_real_escape_string($conn, trim($_POST['handphone']));
 
     if ($nim === '' || $namamhs === '') {
-        $_SESSION['pesan'] = 'NIM dan Nama tidak boleh kosong!';
-        $_SESSION['tipe']  = 'gagal';
+        set_flash('NIM dan Nama tidak boleh kosong!', 'gagal');
     } else {
         $query = mysqli_query($conn, "UPDATE tbl_mhs SET nim='$nim', namamhs='$namamhs', handphone='$handphone' WHERE nim='$nim_lama'");
 
         if ($query) {
-            $_SESSION['pesan'] = 'Data mahasiswa berhasil diupdate!';
-            $_SESSION['tipe']  = 'sukses';
+            set_flash('Data mahasiswa berhasil diupdate!');
         } else {
-            $_SESSION['pesan'] = 'Gagal update data: ' . mysqli_error($conn);
-            $_SESSION['tipe']  = 'gagal';
+            set_flash('Gagal update data: ' . mysqli_error($conn), 'gagal');
         }
     }
 }
@@ -62,14 +57,11 @@ elseif ($aksi === 'hapus') {
     $query = mysqli_query($conn, "DELETE FROM tbl_mhs WHERE nim='$nim'");
 
     if ($query) {
-        $_SESSION['pesan'] = 'Data mahasiswa berhasil dihapus!';
-        $_SESSION['tipe']  = 'sukses';
+        set_flash('Data mahasiswa berhasil dihapus!');
     } else {
-        $_SESSION['pesan'] = 'Gagal hapus data: ' . mysqli_error($conn);
-        $_SESSION['tipe']  = 'gagal';
+        set_flash('Gagal hapus data: ' . mysqli_error($conn), 'gagal');
     }
 }
 
-// Redirect balik ke halaman mahasiswa
 header('Location: mahasiswa.php');
 exit;

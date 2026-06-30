@@ -1,5 +1,5 @@
 <?php
-include 'config.php';
+include 'includes/koneksi.php';
 
 if(isset($_POST['cari'])){
 
