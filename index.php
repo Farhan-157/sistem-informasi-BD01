@@ -100,7 +100,7 @@ session_start();
 <div class="container-custom">
 
     <div class="navbar">
-        <div class="logo">BASIS DATA 01</div>
+        <div class="logo">PKBM ibnu sholihat</div>
         <div class="nav-links">
             <a href="index.php" class="active">Beranda</a>
             <a href="mahasiswa.php">Mahasiswa</a>
@@ -119,7 +119,7 @@ session_start();
 
     <!-- KONTEN -->
     <div class="hero-content">
-        <h1>Sistem Informasi Akademik</h1>
+        <h1>Sistem Informasi</h1>
         <p>Selamat datang di website sistem informasi akademik, kalian dapat melihat beberapa data yang telah kami buat
             yaitu data mahasiswa, data dosen, data mata kuliah, nilai dan juga data anggota kami sendiri.</p>
         <a href="mahasiswa.php" class="btn-start">Mulai Sekarang</a>

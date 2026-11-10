@@ -1,5 +1,5 @@
 <?php
-<<<<<<< HEAD
+
 // header.php — Komponen header Nexara (plain PHP partial)
 // Cara pakai: <?php include 'header.php'; ?>
 
